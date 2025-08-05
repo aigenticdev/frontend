@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AIGENTIC Chatbot Demo</title>
+  
+  <!-- Fonts & CSS -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+
+  <!-- Three.js for avatar -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body class="avatar-page">
+
+  <!-- Menu toggle button -->
+  <button
+    id="menu-toggle"
+    aria-expanded="false"
+    aria-controls="main-nav"
+    aria-label="Toggle menu"
+  >
+    ☰ MENU
+  </button>
+
+  <!-- Main navigation -->
+  <nav id="main-nav">
+  <a href="chatbot.html">CHATBOT</a>
+  <a href="index.html">HOME</a>
+  <a href="team.html">MEET THE TEAM</a>
+  <a href="csr.html">CSR</a>
+  <a href="contact.html">CONTACT</a>
+</nav>
+
+  <!-- Chatbot + Avatar Section -->
+  <div class="container-wrapper" data-aos="fade-up">
+    <!-- Avatar container -->
+    <div id="avatar-container"></div>
+
+    <!-- Chat container -->
+    <div class="chat-container">
+      <h1>AI Gentic Chatbot Demo</h1>
+
+      <div id="chat-window">
+        <!-- Chat messages will be appended here -->
+      </div>
+
+      <div class="input-area">
+        <textarea id="question" rows="2" placeholder="Type your message..."></textarea>
+        <button id="submit-btn">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/static/main.js"></script>
+  <script src="/static/avatar.js"></script>
+  <script src="/static/config.js"></script>
+  <script src="/static/script.js"></script> <!-- for navbar toggling -->
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init({
+      once: true,
+      duration: 800,
+      easing: 'ease-in-out',
+    });
+  </script>
+</body>
+</html>
