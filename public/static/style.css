@@ -389,7 +389,9 @@ h3, h4, h5, h6 {
 @media (max-width: 600px) {
   .purple-box {
     min-width: 0;
-    width: 100%;
+    width: auto;             /* Change from 100% to auto */
+    max-width: calc(100% - 32px); /* Full width minus 16px margin both sides */
+    margin: 0 16px;          /* Add horizontal margin */
   }
   .team-boxes {
     flex-direction: column;
