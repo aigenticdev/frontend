@@ -2,15 +2,18 @@
   "hosting": {
     "public": "public",
     "ignore": [
-      "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
     "rewrites": [
       {
-        "source": "**",
-        "destination": "/index.html"
+        "source": "/api/**",
+        "run": {
+          "serviceId": "rag-chatbot",
+          "region": "europe-west1"
+        }
       }
-    ]
+    ],
+    "serviceAccount": "service-713525811205@gcp-sa-firebase.iam.gserviceaccount.com"
   }
 }

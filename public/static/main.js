@@ -1,5 +1,4 @@
 // chatbot/static/main.js
-const api_base_url = process.env.API_BASE_URL;
 
 document.addEventListener("DOMContentLoaded", () => {
     const chatWindow = document.getElementById("chat-window");
@@ -74,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         setUiLoading(true);
         try {
-            const res = await fetch(`${api_base_url}/api/screening/continue`, {
+            const res = await fetch('/api/screening/continue', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -112,12 +111,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const botParagraph = botMessageDiv.querySelector("p");
         botParagraph.textContent = "";
 
-        const eventSource = new EventSource(`${api_base_url}/api/qna/query?question=${encodeURIComponent(question)}&session_id=${currentSessionId}`);
+        const eventSource = new EventSource(`/api/qna/query?question=${encodeURIComponent(question)}&session_id=${currentSessionId}`);
 
         eventSource.onmessage = function(event) {
             const data = JSON.parse(event.data);
 
-            // ✅ CHANGE: Added handlers for 'answer' and 'sources' types
             switch (data.type) {
                 case 'token':
                     // If this is the first token, clear the "..."
@@ -163,7 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
     async function initializeChat() {
         setUiLoading(true);
         try {
-            const response = await fetch(`${api_base_url}/api/init`);
+            const response = await fetch('/api/init');
             const data = await response.json();
             currentSessionId = data.session_id;
             if (data.next_step) {
