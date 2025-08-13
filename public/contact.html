@@ -20,12 +20,12 @@
 
   <!-- Navigation -->
   <nav id="main-nav">
-  <a href="chatbot.html">CHATBOT</a>
-  <a href="index.html">HOME</a>
-  <a href="team.html">MEET THE TEAM</a>
-  <a href="csr.html">CSR</a>
-  <a href="contact.html">CONTACT</a>
-</nav>
+    <!-- <a href="chatbot.html">CHATBOT</a> -->
+    <a href="index.html">HOME</a>
+    <a href="team.html">MEET THE TEAM</a>
+    <a href="csr.html">CSR</a>
+    <a href="contact.html">CONTACT</a>
+  </nav>
 
   <!-- Hero section -->
   <div class="hero contact-hero">
@@ -43,7 +43,7 @@
     <!-- Form section -->
     <div class="demo-form-container">
       <h2 class="demo-form-title">Book a Demo</h2>
-      <form action="/contact" method="post">
+      <form id="contact-form">
         <div class="form-group">
           <label for="first_name">First Name</label>
           <input type="text" name="first_name" id="first_name" required />
@@ -66,19 +66,18 @@
   </div>
 
   <!-- Google Maps Embed -->
-<div style="max-width: 900px; margin: 2rem auto; border-radius: 12px; overflow: hidden;">
+  <div class="map-container">
   <iframe
     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d879.526041181885!2d5.4846246053986905!3d51.42738605971973!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47c6d855a0843a7d%3A0x8f1c38e2f3faf894!2sLe%20Sage%20ten%20Broeklaan%2017%2C%205615%20CP%20Eindhoven!5e0!3m2!1shu!2snl!4v1752849387908!5m2!1shu!2snl"
-    width="100%"
-    height="250"
-    style="border:0;"
     allowfullscreen=""
     loading="lazy"
-    referrerpolicy="no-referrer-when-downgrade">
-  </iframe>
+    referrerpolicy="no-referrer-when-downgrade"
+  ></iframe>
 </div>
 
-
-  <script src="/static/script.js"></script>
+  <!-- EmailJS script -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <!-- Your custom script -->
+  <script src="/static/contact.js"></script>
 </body>
 </html>

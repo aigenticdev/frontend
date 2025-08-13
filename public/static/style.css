@@ -3,7 +3,6 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    max-width: 100%;
 }
 
 body {
@@ -72,10 +71,16 @@ nav.shrink a {
   text-align: center;
 }
 
+.hero.team-hero,
+.hero.csr-hero {
+  height: auto;          /* let it expand with content */
+  min-height: 300px;     /* still keep the design baseline */
+}
+
 .hero h1 {
     font-size: 48px;
     font-weight: 900;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 }
 
 .hero h2 {
@@ -587,6 +592,23 @@ h3, h4, h5, h6 {
   box-sizing: border-box;
 }
 
+/* Fix for double scrollbar issue */
+html {
+  overflow-y: auto; /* Shows vertical scrollbar ONLY when needed */
+  overflow-x: hidden; /* Prevents horizontal scroll */
+}
+
+body {
+  width: 100%; /* Use % instead of vw to avoid margin issues */
+  position: relative;
+  overflow: hidden !important;
+}
+
+.main-content {
+  overflow-y: auto; /* Allows scrolling in content area */
+}
+
+
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
@@ -711,11 +733,12 @@ h3, h4, h5, h6 {
 
 /* --- CSR Section --- */
 .hero.csr-hero {
-  background: url('/static/images/csr_hero.png') left center / 120% no-repeat;
+  background: url('/static/images/csr_hero.png') right top / 120% no-repeat;
   text-align: left;
   padding-left: 2rem;
   padding-right: 1rem;
-  height: 400px; /* or match your team hero height */
+  min-height: 300px; /* keeps design tall but lets it expand if needed */
+  height: auto; /* or match your team hero height */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -733,7 +756,7 @@ h3, h4, h5, h6 {
 
 .csr-purple-box {
   flex: 1 1 100%;
-  max-width: 900px;
+  max-width: 1200px;
   padding: 20px;
   background: #f7f4fb;
   border-radius: 12px;
@@ -763,6 +786,7 @@ h3, h4, h5, h6 {
 
   .hero.csr-hero h1 {
     font-size: 1.8rem; /* scale down font */
+    margin-top: 30px;
   }
 }
 
@@ -772,13 +796,17 @@ h3, h4, h5, h6 {
 }
 
 .avatar-page {
+  padding-top: 80px; /* or the height of your navbar + some extra */
+  /* keep other styles */
   background: #f9fbfd;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #0a2e5d;
-  padding: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 20px;
   display: flex;
   justify-content: center;
-  height: 100vh;
+  height: auto; /* change from 100vh to auto to allow padding */
 }
 
 .avatar-page .container-wrapper {
@@ -800,8 +828,8 @@ h3, h4, h5, h6 {
 .avatar-page .chat-container {
   background: white;
   width: 100%;
-  max-width: 600px;
-  height: 90vh;
+  max-width: 550px; /* reduced from 600px */
+  height: 85vh;
   border-radius: 12px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   display: flex;
@@ -989,8 +1017,6 @@ h3, h4, h5, h6 {
 }
 
 /* Contact */
-
-/* --- FORM STYLES --- */
 /* Hero section */
 .hero.contact-hero {
   background: #3D0075;
@@ -1125,11 +1151,37 @@ button.btn-primary:hover {
   }
 }
 
+.map-container {
+  width: 100%;
+  max-width: 900px; /* desktop limit */
+  margin: 2rem auto;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.map-container iframe {
+  width: 100%;
+  height: 150px; /* default height */
+  border: 0;
+}
+
+/* PHONE VIEW: make map smaller and centered */
+@media (max-width: 600px) {
+  .map-container {
+    max-width: 300px; /* smaller width */
+  }
+
+  .map-container iframe {
+    height: 120px; /* reduce height too */
+  }
+}
+
 /* --- SUCCESS TOAST MESSAGE --- */
 #success-message {
   position: fixed;
-  top: 20px;
-  right: 20px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background-color: #d4edda;
   color: #155724;
   padding: 1rem 1.5rem;
@@ -1255,4 +1307,23 @@ button.btn-primary:hover {
 
 .popup-overlay[style*="display: flex"] {
   display: flex !important;
+}
+
+/*Scrollbar fix*/
+html {
+  overflow-x: hidden; /* Prevent horizontal scroll everywhere */
+}
+
+/* 2. Team page specific fix (only activates on team.html) */
+.team-hero ~ * {
+  overflow: hidden; /* Lock body scroll when .team-hero exists */
+}
+
+.team-hero ~ .main-content {
+  overflow-y: auto; /* Allow scrolling only in content area */
+}
+
+/* 3. Ensure other pages behave normally */
+body:not(:has(.team-hero)) .main-content {
+  overflow: visible; /* Reset for home.html */
 }
