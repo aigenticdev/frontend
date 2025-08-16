@@ -1,5 +1,5 @@
 // Initialize EmailJS with your public key
-emailjs.init("QuunSj6EnGPPIHH-a");  // <-- your actual public key here
+emailjs.init("5z-78OVgFo-g2RPNW");  // <-- your actual public key here
 
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('contact-form');
@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   form.addEventListener('submit', (event) => {
     event.preventDefault(); // Prevent default form submit
 
-    emailjs.sendForm('service_rcfi0hk', 'template_0t6s0pk', form)
+    emailjs.sendForm('service_r2vw4rg', 'template_pw9w007', form)
       .then(() => {
         // Remove old success message if any
         const oldMsg = document.getElementById('success-message');
