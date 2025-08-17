@@ -1,52 +1,79 @@
-// Initialize EmailJS with your public key
-emailjs.init("QuunSj6EnGPPIHH-a");  // <-- your actual public key here
-
 document.addEventListener('DOMContentLoaded', () => {
+  // Check if Firebase is initialized
+  if (typeof firebase === 'undefined') {
+    console.error("Firebase SDK not loaded. Ensure you have included the Firebase scripts in your HTML.");
+    return;
+  }
+
+  // Initialize Firebase Functions
+  const functions = firebase.functions();
   const form = document.getElementById('contact-form');
+  const submitButton = form.querySelector('button[type="submit"]');
 
   form.addEventListener('submit', (event) => {
-    event.preventDefault(); // Prevent default form submit
+    event.preventDefault(); // Prevent default form submission
 
-    emailjs.sendForm('service_rcfi0hk', 'template_0t6s0pk', form)
-      .then(() => {
-        // Remove old success message if any
-        const oldMsg = document.getElementById('success-message');
-        if (oldMsg) oldMsg.remove();
+    // Disable button to prevent multiple submissions
+    submitButton.disabled = true;
+    submitButton.textContent = 'Sending...';
 
-        // Create new toast
-        const msg = document.createElement('div');
-        msg.id = 'success-message';
-        msg.textContent = 'Message sent successfully!';
+    // Get a reference to our Cloud Function
+    const sendContactEmail = functions.httpsCallable('sendContactEmail');
 
-        // Append to body
-        document.body.appendChild(msg);
+    // Create a data object from the form fields
+    const formData = {
+      first_name: form.first_name.value,
+      last_name: form.last_name.value,
+      email: form.email.value,
+      message: form.message.value,
+    };
 
-        // Fade out after 3 seconds
-        setTimeout(() => {
-          msg.style.opacity = '0';
-          setTimeout(() => msg.remove(), 1000); // match CSS transition duration
-        }, 3000);
-
+    // Call the function with the form data
+    sendContactEmail(formData)
+      .then((result) => {
+        console.log(result.data.message);
+        displayToast('Message sent successfully!', 'success');
         form.reset();
       })
       .catch((error) => {
-        // Remove old message if any
-        const oldMsg = document.getElementById('success-message');
-        if (oldMsg) oldMsg.remove();
-
-        // Create error toast
-        const msg = document.createElement('div');
-        msg.id = 'success-message';
-        msg.style.backgroundColor = '#f8d7da'; // light red background
-        msg.style.color = '#721c24'; // dark red text
-        msg.textContent = 'Failed to send message: ' + error.text;
-
-        document.body.appendChild(msg);
-
-        setTimeout(() => {
-          msg.style.opacity = '0';
-          setTimeout(() => msg.remove(), 1000);
-        }, 4000);
+        console.error('Error sending message:', error);
+        displayToast(`Error: ${error.message}`, 'error');
+      })
+      .finally(() => {
+        // Re-enable the button after the process is complete
+        submitButton.disabled = false;
+        submitButton.textContent = 'Send';
       });
   });
+
+  /**
+   * Helper function to display a toast message for user feedback.
+   * @param {string} message The message to display.
+   * @param {string} type 'success' or 'error' for styling.
+   */
+  function displayToast(message, type = 'success') {
+    // Remove any existing toast
+    const oldToast = document.getElementById('toast-message');
+    if (oldToast) oldToast.remove();
+
+    // Create the toast element
+    const toast = document.createElement('div');
+    toast.id = 'toast-message';
+    toast.textContent = message;
+
+    // Style for error messages
+    if (type === 'error') {
+      toast.style.backgroundColor = '#f8d7da'; // Light red
+      toast.style.color = '#721c24'; // Dark red
+    }
+
+    document.body.appendChild(toast);
+
+    // Animate fade out and remove after a few seconds
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      // Remove the element from the DOM after the transition ends
+      setTimeout(() => toast.remove(), 1000);
+    }, 4000);
+  }
 });
