@@ -10,8 +10,6 @@ body {
   color: #222;
   background: #fff;
   line-height: 1.6;
-
-
 }
 
 html, body {
@@ -25,10 +23,10 @@ nav {
     width: 100%;
     display: flex;
     justify-content: center;
-    gap: 60px;                   /* Increased spacing between links */
-    padding: 30px 0;             /* Increased vertical padding */
+    gap: 60px;
+    padding: 30px 0;
     font-weight: 500;
-    font-size: 18px;             /* Optional: base font size, though link font size is handled in nav a */
+    font-size: 18px;
     background: #fff;
     z-index: 1000;
     transition: all 0.3s ease;
@@ -38,8 +36,8 @@ nav {
 nav a {
     text-decoration: none;
     color: #000;
-    font-size: 20px;        /* Increased from 16px */
-    font-weight: 800;       /* Increased thickness */
+    font-size: 20px;
+    font-weight: 800;
     transition: color 0.2s, font-size 0.3s;
 }
 
@@ -48,21 +46,21 @@ nav a:focus {
     color: #3D0075;
 }
 
-/* 👇 Shrunk version */
+/* Shrunk version */
 nav.shrink {
-    padding: 10px 0;               /* Smaller padding */
+    padding: 10px 0;
     font-size: 14px;
 }
 
 nav.shrink a {
-    font-size: 14px;               /* Smaller link font */
+    font-size: 14px;
 }
 
-/* --- HERO --- */
+/* --- HERO SECTION--- */
 .hero {
   margin-top: 75px;
   background: url('/static/images/home_hero1.png') center center / cover no-repeat;
-  height: 300px;
+  height: 400px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -73,8 +71,8 @@ nav.shrink a {
 
 .hero.team-hero,
 .hero.csr-hero {
-  height: auto;          /* let it expand with content */
-  min-height: 300px;     /* still keep the design baseline */
+  height: auto;
+  min-height: 400px;
 }
 
 .hero h1 {
@@ -94,7 +92,7 @@ nav.shrink a {
   transform-origin: top center;
 }
 
-/* Shrink and fade class */
+
 .hero.shrink h1,
 .hero.shrink h2 {
   transform: scale(0.8);
@@ -110,10 +108,12 @@ nav.shrink a {
 }
 
 .main-content {
-  font-size: 18px;  /* Or 19px / 1.125rem if you want slightly larger */
+  font-size: 18px;
 }
 
-/* --- GENERIC SECTION STYLES --- */
+/* ---------------------------
+ Section Styles
+ -----------------------------*/
 section {
     margin-bottom: 48px;
 }
@@ -234,7 +234,7 @@ section.reverse .section-content {
   text-align: center;
 }
 
-/* purple box part */
+/* purple box  */
 .purple-box {
   flex: 1 1 48%;
   padding: 24px;
@@ -242,7 +242,6 @@ section.reverse .section-content {
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(61, 0, 117, 0.1);
   box-sizing: border-box;
-  /* ✅ FIXED */
   min-width: 0;
   width: 100%;
 }
@@ -261,13 +260,11 @@ section.reverse .section-content {
   background: #fff; /* optional: consistent with team page image cards */
 }
 
-/* Justify all text in paragraphs and list items */
 p,
 li {
   text-align: justify;
 }
 
-/* Optional: justify section headings if you want them aligned too */
 h3, h4, h5, h6 {
   text-align: justify;
 }
@@ -286,7 +283,6 @@ h3, h4, h5, h6 {
 }
 
 /* --- NAVBAR MOBILE FIX --- */
-/* Hide nav on mobile by default, show toggle button */
 #menu-toggle {
   display: none;
 }
@@ -352,7 +348,7 @@ h3, h4, h5, h6 {
 @media (max-width: 600px) {
   .hero {
     height: auto;
-    padding: 100px 20px 40px; /* top padding added for nav space */
+    padding: 100px 20px 40px;
     margin-top: 0;
   }
 
@@ -371,6 +367,7 @@ h3, h4, h5, h6 {
     font-size: 18px;
   }
 }
+
 /* Justify text only on desktop */
 @media (min-width: 601px) {
   p,
@@ -394,9 +391,9 @@ h3, h4, h5, h6 {
 @media (max-width: 600px) {
   .purple-box {
     min-width: 0;
-    width: auto;             /* Change from 100% to auto */
-    max-width: calc(100% - 32px); /* Full width minus 16px margin both sides */
-    margin: 0 16px;          /* Add horizontal margin */
+    width: auto;
+    max-width: calc(100% - 32px);
+    margin: 0 16px;
   }
   .team-boxes {
     flex-direction: column;
@@ -409,7 +406,9 @@ h3, h4, h5, h6 {
   }
 }
 
-/* --- MEET THE TEAM SECTION --- */
+/* ----------------------
+MEET THE TEAM SECTION
+------------------------- */
 .hero.team-hero {
   background: url('/static/images/team_hero.jpg') center center / cover no-repeat;
 }
@@ -439,9 +438,9 @@ h3, h4, h5, h6 {
 }
 
 .team-member-img {
-  width: 100%;              /* ✅ Responsive width */
-  max-width: 300px;         /* ✅ Keeps reasonable max size */
-  height: auto;
+  width: 100%;
+  max-width: 300px;
+  height: 173px;
   object-fit: cover;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(61, 0, 117, 0.08);
@@ -553,8 +552,8 @@ h3, h4, h5, h6 {
 }
 
 .intern h6 {
-  width: 100%;         /* take full width of container */
-  text-align: left;    /* align text to the left */
+  width: 100%;
+  text-align: left;
   margin-top: 10px;
   margin-bottom: 5px;
 }
@@ -587,7 +586,7 @@ h3, h4, h5, h6 {
 
 .core-team-wrapper {
   width: 92%;
-  max-width: none; /* allow it to grow freely */
+  max-width: none;
   margin: 0 auto;
   padding: 0;
 }
@@ -599,20 +598,20 @@ h3, h4, h5, h6 {
   box-sizing: border-box;
 }
 
-/* Fix for double scrollbar issue */
+/* FIXING DOUBLE SCROLLBAR  */
 html {
-  overflow-y: auto; /* Shows vertical scrollbar ONLY when needed */
-  overflow-x: hidden; /* Prevents horizontal scroll */
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 body {
-  width: 100%; /* Use % instead of vw to avoid margin issues */
+  width: 100%;
   position: relative;
   overflow: hidden !important;
 }
 
 .main-content {
-  overflow-y: auto; /* Allows scrolling in content area */
+  overflow-y: auto;
 }
 
 
@@ -690,61 +689,88 @@ body {
   }
 }
 
+/* --- HERO MOBILE FIX --- */
 @media (max-width: 600px) {
-  .hero.team-hero {
-    height: auto;
-    padding: 100px 20px 40px; /* top padding for nav */
+  .hero {
+    padding: 100px 20px 40px;
     margin-top: 0;
+  }
+
+  .hero {
     background-size: cover;
+    /* Default background position for most heroes */
     background-position: 80% top;
   }
 
+  .hero h1 {
+    margin-top: 0;
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+
+  .hero h2 {
+    font-size: 18px;
+  }
+
+  /* Team hero specific adjustments */
+  .hero.team-hero {
+    height: 300px !important;
+    min-height: 300px !important;
+    padding: 100px 20px 40px !important;
+    /* Adjust background position to show the head */
+    background-position: 75% top !important;
+  }
+
+  /* Fix for content inside team hero */
+  .hero.team-hero > * {
+    max-width: 300px;
+    margin-left: 0;
+    margin-right: auto;
+  }
+
   .hero.team-hero h1 {
-    margin-top: 0 !important;
-    font-size: 32px !important;
-    margin-bottom: 12px !important;
+    margin-top: 4rem;
+    font-size: 32px;
+    margin-bottom: 12px;
+    text-align: left;
   }
 
   .hero.team-hero h2 {
     font-size: 18px;
+    text-align: center;
   }
 
-  /* Center and constrain width of hero text */
-  .hero.team-hero > * {
-    max-width: 90%;
-    margin-left: auto;
-    margin-right: auto;
+  /* CSR hero specific adjustments */
+  .hero.csr-hero {
+    height: 300px !important;
+    min-height: 300px !important;
+    padding: 100px 20px 40px !important;
+    background-position: center center;
+    text-align: center;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 
-  .hero h1 {
-  text-align: left;
-}
-}
-
-@media (max-width: 600px) {
-  .hero.team-hero {
-    text-align: left !important;
-    display: block !important; /* disable flex if applied */
-  }
-
-  .hero.team-hero h1 {
-    text-align: left !important;
-    margin-left: 0 !important;
-    margin-right: auto !important;
-    max-width: none !important;
+  .hero.csr-hero h1 {
+    font-size: 1.8rem;
+    margin-top: 30px;
+    text-align: center;
   }
 }
 
 
 
 
-/* --- CSR Section --- */
+/* --------------------
+ CSR Section
+ ---------------------- */
+
 .hero.csr-hero {
-  background: url('/static/images/csr_hero.png') right top / 120% no-repeat;
+  background: url('/static/images/csr_hero.png') left top / 100% no-repeat;
   text-align: left;
   padding-left: 2rem;
   padding-right: 1rem;
-  min-height: 300px; /* keeps design tall but lets it expand if needed */
+  min-height: 400px; /* keeps design tall but lets it expand if needed */
   height: auto; /* or match your team hero height */
   display: flex;
   flex-direction: column;
@@ -754,9 +780,9 @@ body {
 
 /* Hero text styling */
 .hero.csr-hero h1 {
-  margin: 0;
   font-weight: 900;
   line-height: 1.2;
+  margin-top: 5rem;
 }
 
 
@@ -773,7 +799,6 @@ body {
   width: 90%;
 }
 
-/* Optional tweak for small screens */
 @media (max-width: 600px) {
   .csr-purple-box {
     width: 90%;
@@ -788,33 +813,36 @@ body {
     text-align: center;
     padding-left: 1rem;
     padding-right: 1rem;
-    height: auto; /* adjust if needed */
+    height: 300px !important;
   }
 
   .hero.csr-hero h1 {
-    font-size: 1.8rem; /* scale down font */
+    font-size: 1.8rem;
     margin-top: 30px;
+    text-align: center;
   }
 }
 
-/* Privacy Policy page */
+/* --------------------
+Privacy Policy page
+-----------------------*/
 
 .hero.privacy-hero {
-  background: url('/static/images/csr_hero.png') right top / 120% no-repeat;
+  background: url('/static/images/csr_hero.png') left top / 100% no-repeat;
   text-align: left;
   padding-left: 2rem;
   padding-right: 1rem;
-  min-height: 300px; /* keeps design tall but lets it expand if needed */
-  height: auto; /* or match your team hero height */
+  min-height: 400px;
+  height: 300px !important;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  color: white; /* or adjust text color for contrast */
+  color: white;
 }
 
 /* Hero text styling */
 .hero.privacy-hero h1 {
-  margin: 0;
+  margin-top: 3rem;
   font-weight: 900;
   line-height: 1.2;
 }
@@ -921,23 +949,30 @@ body {
     text-align: center;
     padding-left: 1rem;
     padding-right: 1rem;
-    height: auto; /* adjust if needed */
+    height: 300px !important;
+    min-height: 300px !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
   .hero.privacy-hero h1 {
-    font-size: 1.8rem; /* scale down font */
+    font-size: 1.8rem;
     margin-top: 30px;
+    text-align: center;
   }
 }
 
-/* Avatar Page */
+/* -----------------
+Avatar Page
+--------------------*/
+
 .avatar-page * {
   box-sizing: border-box;
 }
 
 .avatar-page {
-  padding-top: 80px; /* or the height of your navbar + some extra */
-  /* keep other styles */
+  padding-top: 80px;
   background: #f9fbfd;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #0a2e5d;
@@ -946,7 +981,7 @@ body {
   padding-bottom: 20px;
   display: flex;
   justify-content: center;
-  height: auto; /* change from 100vh to auto to allow padding */
+  height: auto;
 }
 
 .avatar-page .container-wrapper {
@@ -968,7 +1003,7 @@ body {
 .avatar-page .chat-container {
   background: white;
   width: 100%;
-  max-width: 550px; /* reduced from 600px */
+  max-width: 550px;
   height: 85vh;
   border-radius: 12px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
@@ -1156,14 +1191,21 @@ body {
     color: #003366;
 }
 
-/* Contact */
+/* ---------------
+Contact Page
+------------------*/
+
 /* Hero section */
 .hero.contact-hero {
   background: #3D0075;
   box-shadow: 0 2px 8px rgba(47, 0, 90, 0.1);
   padding: 3rem 2rem;
   text-align: center;
-  color: white; /* to keep text readable */
+  color: white;
+}
+
+.hero.contact-hero h1 {
+  margin-top: 0.5rem;
 }
 
 /* Contact layout container */
@@ -1176,10 +1218,9 @@ body {
   padding: 3rem 2rem;
 }
 
-/* Slightly bigger image */
 .contact-image {
-  flex: 1 1 50%; /* from ~40% to 50% */
-  max-width: 500px; /* up from 400px */
+  flex: 1 1 50%;
+  max-width: 500px;
   margin-top: 120px;
 }
 
@@ -1189,13 +1230,11 @@ body {
   box-shadow: 0 2px 8px rgba(61, 0, 117, 0.1);
 }
 
-/* Slightly smaller form */
 .demo-form-container {
-  flex: 1 1 40%; /* down from 50% or 60% */
-  max-width: 450px; /* down from 600px */
+  flex: 1 1 40%;
+  max-width: 450px;
 }
 
-/* Slightly smaller input padding */
 .form-group input,
 .form-group textarea {
   font-size: 0.95rem;
@@ -1235,7 +1274,7 @@ input[type="text"]:focus,
 input[type="email"]:focus,
 textarea:focus {
   outline: none;
-  border-color: #3d0075; /* deep purple */
+  border-color: #3d0075;
   box-shadow: 0 0 8px rgba(61, 0, 117, 0.3);
   background-color: #fafafa;
 }
@@ -1267,7 +1306,7 @@ button.btn-primary:hover {
   .demo-form-container {
     max-width: 100% !important;
     flex: 1 1 100%;
-    padding: 0 1rem; /* optional, some side padding */
+    padding: 0 1rem;
   }
 
   .demo-form-container form {
@@ -1276,24 +1315,24 @@ button.btn-primary:hover {
 
   .form-group input,
   .form-group textarea {
-    width: 100%; /* make inputs fill container */
-    box-sizing: border-box; /* include padding in width */
+    width: 100%;
+    box-sizing: border-box;
   }
 }
 
 @media (max-width: 768px) {
   .contact-section {
-    padding-top: 0; /* reduce top padding on phones */
+    padding-top: 0;
   }
 
   nav#main-nav {
-    margin-bottom: 0; /* remove any extra space below navbar on phones */
+    margin-bottom: 0;
   }
 }
 
 .map-container {
   width: 100%;
-  max-width: 900px; /* desktop limit */
+  max-width: 900px;
   margin: 2rem auto;
   border-radius: 12px;
   overflow: hidden;
@@ -1301,18 +1340,18 @@ button.btn-primary:hover {
 
 .map-container iframe {
   width: 100%;
-  height: 150px; /* default height */
+  height: 150px;
   border: 0;
 }
 
-/* PHONE VIEW: make map smaller and centered */
+/* PHONE VIEW*/
 @media (max-width: 600px) {
   .map-container {
-    max-width: 300px; /* smaller width */
+    max-width: 300px;
   }
 
   .map-container iframe {
-    height: 120px; /* reduce height too */
+    height: 120px;
   }
 }
 
@@ -1334,7 +1373,7 @@ button.btn-primary:hover {
 }
 
 
-/* --- OPTIONAL: Responsive behavior for toast on small screens --- */
+/* --- Responsive --- */
 @media (max-width: 600px) {
   #success-message {
     left: 50%;
@@ -1345,17 +1384,15 @@ button.btn-primary:hover {
 }
 
 @media (max-width: 600px) {
-  /* Limit map container width and center it */
   div[style*="max-width: 900px"] {
-    max-width: 320px !important;  /* or any smaller width suitable for phones */
+    max-width: 320px !important;
     margin-left: auto !important;
     margin-right: auto !important;
   }
 
-  /* Optional: keep iframe width to 100% of container */
   div[style*="max-width: 900px"] iframe {
     width: 100% !important;
-    height: 250px; /* keep height fixed or adjust */
+    height: 250px;
   }
 }
 
@@ -1367,7 +1404,7 @@ button.btn-primary:hover {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
-  display: none;            /* Hidden by default */
+  display: none;
   justify-content: center;
   align-items: center;
   z-index: 9999;
@@ -1390,7 +1427,7 @@ button.btn-primary:hover {
   margin-bottom: 15px;
   font-weight: 700;
   font-size: 1.8rem;
-  color: #5a2a83; /* example purple */
+  color: #5a2a83;
 }
 
 /* Popup Text */
@@ -1413,7 +1450,7 @@ button.btn-primary:hover {
 
 /* Try Now button style */
 #popup-try-btn {
-  background-color: #5a2a83; /* purple */
+  background-color: #5a2a83;
   color: white;
 }
 
@@ -1527,7 +1564,7 @@ body:not(:has(.team-hero)) .main-content {
   font-size: 0.85em;
   opacity: 0.8;
   margin: 0;
-  text-align: center; /* centers the text */
+  text-align: center;
 }
 
 .footer-contact {
