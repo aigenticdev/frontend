@@ -1,13 +1,19 @@
-// chatbot/static/main.js
+// AIGENTIC Frontend Logic - main.js
 
 document.addEventListener("DOMContentLoaded", () => {
+    // --- DOM Elements ---
     const chatWindow = document.getElementById("chat-window");
     const questionInput = document.getElementById("question");
     const submitBtn = document.getElementById("submit-btn");
+    const gameModal = document.getElementById('game-modal');
+    const gameIframe = document.getElementById('game-iframe');
+    const closeGameBtn = document.getElementById('close-game-btn');
 
+    // --- Application State ---
     let currentSessionId = null;
-    let currentStepId = null; // Tracks our place in the screening flow
-    let isQnAMode = false;   // Controls which API endpoint to call
+    let currentStepId = null;
+    let isQnAMode = false;
+    let qnaServiceUrl = null;
 
     // --- UI Helper Functions ---
     function setUiLoading(isLoading) {
@@ -20,11 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const messageDiv = document.createElement("div");
         messageDiv.classList.add("message", sender);
         const p = document.createElement("p");
-        // Use a regex to safely handle HTML and convert newlines
-        p.innerHTML = text
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/\n/g, '<br>');
+        p.innerHTML = text.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, '<br>');
         messageDiv.appendChild(p);
         chatWindow.appendChild(messageDiv);
         chatWindow.scrollTop = chatWindow.scrollHeight;
@@ -34,25 +36,26 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- Core Application Logic ---
 
     function renderStep(step) {
-        const { step_id, message, options } = step;
-        currentStepId = step_id;
-        const messageDiv = appendMessage(message, "bot");
+        currentStepId = step.step_id;
 
-        if (options) {
+        // First, render the message and options for the current step
+        const messageDiv = appendMessage(step.message || "", "bot");
+
+        if (step.options) {
             const optionsContainer = document.createElement("div");
             optionsContainer.className = "message-options";
 
-            for (const [key, value] of Object.entries(options)) {
+            for (const [key, value] of Object.entries(step.options)) {
                 const button = document.createElement("button");
                 button.className = "option-btn";
                 button.textContent = value;
-                button.addEventListener("click", () => {
+                button.onclick = () => {
                     handleScreeningResponse(key);
                     optionsContainer.querySelectorAll('.option-btn').forEach(btn => {
                         btn.disabled = true;
                         if (btn === button) btn.classList.add('selected');
                     });
-                });
+                };
                 optionsContainer.appendChild(button);
             }
             messageDiv.appendChild(optionsContainer);
@@ -64,14 +67,41 @@ document.addEventListener("DOMContentLoaded", () => {
             setUiLoading(false);
             questionInput.focus();
         }
+
+        // NOW, check if this step should also trigger the game modal
+        if (currentStepId === "GRC_FEEDBACK_1_HELPFUL") {
+            handleOpenGameModal();
+        }
     }
 
-    async function handleScreeningResponse(response) {
-        // Add the user's response to the chat window if it's text input
-        if (typeof response === 'string') {
-            appendMessage(response, "user");
+    function handleOpenGameModal() {
+        console.log("Opening game modal...");
+        gameIframe.src = "static/game/index.html"; // Hardcoded for simplicity as it's the only game
+        gameModal.style.display = 'flex';
+
+        function closeGame() {
+            console.log("Game finished. Closing modal and continuing conversation.");
+            gameModal.style.display = 'none';
+            gameIframe.src = ""; // Stop the game to free up resources
+            window.removeEventListener("message", messageHandler);
+        }
+
+        closeGameBtn.onclick = closeGame;
+
+        function messageHandler(event) {
+            if (event.data === "game_completed") {
+                closeGame();
+            }
+        }
+        window.addEventListener("message", messageHandler);
+    }
+
+    async function handleScreeningResponse(responseKey) {
+        if (typeof responseKey === 'string') {
+            appendMessage(responseKey, "user"); // Visually represent the choice
         }
         setUiLoading(true);
+
         try {
             const res = await fetch('/api/screening/continue', {
                 method: 'POST',
@@ -79,13 +109,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({
                     session_id: currentSessionId,
                     step_id: currentStepId,
-                    response: response,
+                    response: responseKey,
                 }),
             });
             const data = await res.json();
 
             if (data.transition_to === 'qna') {
-                enterQnAMode(data.message);
+                enterQnAMode(data);
             } else if (data.next_step) {
                 renderStep(data.next_step);
             }
@@ -95,9 +125,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function enterQnAMode(confirmationMessage) {
+    function enterQnAMode(data) {
         isQnAMode = true;
-        appendMessage(confirmationMessage, "bot");
+        qnaServiceUrl = data.qna_service_url;
+        appendMessage(data.message, "bot");
         questionInput.style.display = 'block';
         submitBtn.style.display = 'block';
         setUiLoading(false);
@@ -105,45 +136,32 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function handleQnAResponse(question) {
+        if (!qnaServiceUrl) {
+            console.error("Q&A service URL is not set.");
+            appendMessage("I'm sorry, there is a configuration error. Please contact support.", "bot");
+            return;
+        }
+
         appendMessage(question, "user");
         setUiLoading(true);
-        const botMessageDiv = appendMessage("...", "bot");
+        const botMessageDiv = appendMessage("", "bot");
         const botParagraph = botMessageDiv.querySelector("p");
-        botParagraph.textContent = "";
 
-        const eventSource = new EventSource(`/api/qna/query?question=${encodeURIComponent(question)}&session_id=${currentSessionId}`);
+        const eventSource = new EventSource(`${qnaServiceUrl}/api/qna/query?question=${encodeURIComponent(question)}&session_id=${currentSessionId}`);
 
         eventSource.onmessage = function(event) {
             const data = JSON.parse(event.data);
-
             switch (data.type) {
                 case 'token':
-                    // If this is the first token, clear the "..."
-                    if (botParagraph.textContent === "...") {
-                        botParagraph.textContent = "";
-                    }
                     botParagraph.innerHTML += data.content.replace(/\n/g, '<br>');
                     break;
-
-                case 'answer':
-                    // This handles pre-canned responses, like from guardrails
-                    botParagraph.innerHTML = data.content.replace(/\n/g, '<br>');
-                    break;
-
-                case 'sources':
-                    // This can be expanded later to show formatted source documents
-                    console.log("Received sources:", data.content);
-                    break;
-
                 case 'end':
                     eventSource.close();
                     setUiLoading(false);
                     questionInput.focus();
                     break;
-
                 case 'error':
                     botParagraph.textContent = data.content;
-                    botParagraph.classList.add('error-message');
                     eventSource.close();
                     setUiLoading(false);
                     break;
@@ -152,7 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         eventSource.onerror = function(err) {
             console.error("EventSource failed:", err);
-            botParagraph.textContent = "Sorry, I encountered an error. Please check the server connection and try again.";
+            botParagraph.textContent = "Sorry, an error occurred. Please try again.";
             eventSource.close();
             setUiLoading(false);
         };
@@ -160,16 +178,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function initializeChat() {
         setUiLoading(true);
+        let savedSessionId = localStorage.getItem('aigentic_session_id');
+        let response;
+
         try {
-            const response = await fetch('/api/init');
+            response = await fetch('/api/session/init', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session_id: savedSessionId })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
             const data = await response.json();
             currentSessionId = data.session_id;
-            if (data.next_step) {
+            localStorage.setItem('aigentic_session_id', currentSessionId);
+
+            if (data.transition_to === 'qna') {
+                enterQnAMode(data);
+            } else if (data.next_step) {
                 renderStep(data.next_step);
             }
         } catch (error) {
-            console.error("Initialization failed:", error);
-            appendMessage("Sorry, I couldn't start our conversation. Please refresh the page.", "bot");
+            console.error("Backend initialization failed:", error);
+            if (response) {
+                response.text().then(text => {
+                    console.error("Raw response from server that caused error:", text);
+                });
+            }
+            // window.location.href = "/contact.html"; // Uncomment this line for production
         }
     }
 
@@ -181,7 +220,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (isQnAMode) {
             handleQnAResponse(question);
         } else {
-            // This is a text response in the screening flow
             handleScreeningResponse(question);
         }
         questionInput.value = "";
