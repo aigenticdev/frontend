@@ -6,7 +6,7 @@
   <title>AIGENTIC Chatbot Demo</title>
   
   <!-- AIGENTIC Console Styles -->
-  <link rel="stylesheet" href="/static/avatar.css" />
+  <link rel="stylesheet" href="/static/style.css" />
 
   <!-- Fonts & Animations -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet" />
@@ -21,8 +21,6 @@
     }
   }
   </script>
-
-
 </head>
 <body class="avatar-page">
 
@@ -38,16 +36,21 @@
 
   <!-- Main navigation -->
   <nav id="main-nav">
-  <a href="chatbot.html">CHATBOT</a>
-  <a href="index.html">HOME</a>
-  <a href="team.html">MEET THE TEAM</a>
-  <a href="csr.html">CSR</a>
-  <a href="contact.html">CONTACT</a>
-</nav>
+    <a href="chatbot.html">CHATBOT</a>
+    <a href="index.html">HOME</a>
+    <a href="team.html">MEET THE TEAM</a>
+    <a href="csr.html">CSR</a>
+    <a href="contact.html">CONTACT</a>
+  </nav>
+
+  <!-- Mobile host message -->
+  <div class="avatar-host-message">
+    Our Avatar host Claudia will return soon! She is getting a wardrobe upgrade!
+  </div>
 
   <!-- AIGENTIC Console Layout -->
   <div class="console-container" data-aos="fade-up">
-    <!-- Avatar container -->
+    <!-- Avatar container (hidden) -->
     <div id="avatar-container"></div>
 
     <!-- Chat container -->
@@ -75,6 +78,7 @@
   <!-- Scripts -->
   <script type="module" src="/static/avatar.js"></script>
   <script type="module" src="/static/main.js"></script>
+  <script src="/static/script.js"></script>
   <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
   <script>
     AOS.init({
