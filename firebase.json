@@ -7,14 +7,35 @@
     ],
     "rewrites": [
       {
-        "source": "/api/**",
+        "source": "/api/session/**",
         "run": {
-          "serviceId": "rag-chatbot",
-          "region": "europe-west1"
+          "serviceId": "screening-service",
+          "region": "europe-west4"
+        }
+      },
+      {
+        "source": "/api/screening/**",
+        "run": {
+          "serviceId": "screening-service",
+          "region": "europe-west4"
+        }
+      },
+      {
+        "source": "/api/qna/**",
+        "run": {
+          "serviceId": "qna-service",
+          "region": "europe-west4"
         }
       }
     ],
-    "serviceAccount": "service-713525811205@gcp-sa-firebase.iam.gserviceaccount.com"
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          { "key": "Access-Control-Allow-Origin", "value": "*" }
+        ]
+      }
+    ]
   },
   "functions": [
     {
