@@ -21,6 +21,13 @@
         }
       },
       {
+        "source": "/api/convai/proxy/**",
+        "run": {
+          "serviceId": "screening-service",
+          "region": "europe-west4"
+        }
+      },
+      {
         "source": "/api/qna/**",
         "run": {
           "serviceId": "qna-service",
@@ -34,6 +41,7 @@
           "region": "europe-west4"
         }
       }
+
     ],
     "headers": [
       {

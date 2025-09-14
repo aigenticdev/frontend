@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AIGENTIC Chatbot Demo</title>
-  
+  <title>AIGENTIC Office Assistant</title>
+
   <!-- AIGENTIC Console Styles -->
   <link rel="stylesheet" href="/static/style.css" />
 
@@ -12,15 +12,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet">
   <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
-
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-    }
-  }
-  </script>
 </head>
 <body class="office-chatbot">
 
@@ -54,31 +45,26 @@
     <!-- Avatar container (hidden) -->
     <div id="avatar-container"></div>
 
-    <!-- Chat container -->
-    <div class="chat-container">
+    <!-- Convai Chat container with unique IDs -->
+    <div class="convai-container chat-container"
+         data-character-id="40ffc69a-841f-11f0-8b14-42010a7be01f"
+         data-service-name="office"
+         data-welcome-message="Welcome to AIGENTIC Office Assistant. How can I help you today?">
 
-      <div id="chat-window">
+      <div id="convai-chat-window">
         <!-- Chat messages will be appended here -->
       </div>
 
-      <div class="input-area">
-        <textarea id="question" rows="1" placeholder="Type your message..."></textarea>
-        <button id="submit-btn">Send</button>
+      <div class="convai-input-area input-area">
+        <textarea id="convai-input" rows="1" placeholder="Type your message..." autocomplete="off"></textarea>
+        <button id="convai-submit">Send</button>
       </div>
-    </div>
-  </div>
-
-  <!-- Game Modal -->
-  <div id="game-modal" class="game-modal-overlay" style="display: none;">
-    <div class="game-modal-content">
-      <button id="close-game-btn" class="game-modal-close-btn">&times;</button>
-      <iframe id="game-iframe" src="" frameborder="0" allowfullscreen></iframe>
     </div>
   </div>
 
   <!-- Scripts -->
-  <script type="module" src="/static/main.js"></script>
   <script src="/static/script.js"></script>
+  <script src="/static/convai-chat.js"></script>
   <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
   <script>
     AOS.init({
