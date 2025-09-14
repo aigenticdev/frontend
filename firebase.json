@@ -26,6 +26,13 @@
           "serviceId": "qna-service",
           "region": "europe-west4"
         }
+      },
+      {
+        "source": "/api/scrolls/**",
+        "run": {
+          "serviceId": "holocron-api",
+          "region": "europe-west4"
+        }
       }
     ],
     "headers": [

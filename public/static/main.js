@@ -67,11 +67,6 @@ document.addEventListener("DOMContentLoaded", () => {
             setUiLoading(false);
             questionInput.focus();
         }
-
-        // NOW, check if this step should also trigger the game modal
-        if (currentStepId === "GRC_FEEDBACK_1_HELPFUL") {
-            handleOpenGameModal();
-        }
     }
 
     function handleOpenGameModal() {
@@ -113,6 +108,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 }),
             });
             const data = await res.json();
+
+            // NEW: Check for a redirect action from the backend
+            if (data.action && data.action.type === 'REDIRECT') {
+                window.location.href = data.action.url;
+                return; // Stop processing
+            }
 
             if (data.transition_to === 'qna') {
                 enterQnAMode(data);
