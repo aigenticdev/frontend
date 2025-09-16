@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AIGENTIC Office Assistant</title>
+
+  <!-- AIGENTIC Console Styles -->
+  <link rel="stylesheet" href="/static/style.css" />
+
+  <!-- Fonts & Animations -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+</head>
+<body class="office-chatbot">
+
+  <!-- Menu toggle button -->
+  <button
+    id="menu-toggle"
+    aria-expanded="false"
+    aria-controls="main-nav"
+    aria-label="Toggle menu"
+  >
+    ☰ MENU
+  </button>
+
+  <!-- Main navigation -->
+  <nav id="main-nav">
+    <a href="chatbot.html">CHATBOT</a>
+    <a href="index.html">HOME</a>
+    <a href="team.html">MEET THE TEAM</a>
+    <a href="csr.html">CSR</a>
+    <a href="privacy.html">PRIVACY POLICY</a>
+    <a href="contact.html">CONTACT</a>
+  </nav>
+
+  <!-- Mobile host message -->
+  <div class="avatar-host-message">
+    Our Avatar host Claudia will return soon! She is getting a wardrobe upgrade!
+  </div>
+
+  <!-- AIGENTIC Console Layout -->
+  <div class="console-container" data-aos="fade-up">
+    <!-- Avatar container (hidden) -->
+    <div id="avatar-container"></div>
+
+    <!-- Convai Chat container with unique IDs -->
+    <div class="convai-container chat-container"
+         data-character-id="40ffc69a-841f-11f0-8b14-42010a7be01f"
+         data-service-name="office"
+         data-welcome-message="Welcome to AIGENTIC Office Assistant. How can I help you today?">
+
+      <div id="convai-chat-window">
+        <!-- Chat messages will be appended here -->
+      </div>
+
+      <div class="convai-input-area input-area">
+        <textarea id="convai-input" rows="1" placeholder="Type your message..." autocomplete="off"></textarea>
+        <button id="convai-submit">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/static/script.js"></script>
+  <script src="/static/session-initializer.js"></script>
+  <script src="/static/convai-chat.js"></script>
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init({
+      once: true,
+      duration: 800,
+      easing: 'ease-in-out',
+    });
+  </script>
+</body>
+</html>

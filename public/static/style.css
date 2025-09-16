@@ -1540,6 +1540,24 @@ Mobile adjustments
   border: 1px solid rgba(139, 119, 101, 0.2);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
+.start-chat-btn {
+    background: linear-gradient(135deg, #8b7765 0%, #6d5d4d 100%);
+    color: white;
+    border: none;
+    border-radius: 24px;
+    padding: 0 56px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    height: 48px;
+    box-shadow: 0 2px 8px rgba(107, 93, 84, 0.3);
+}
+.start-chat-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(107, 93, 84, 0.4);
+  background: linear-gradient(135deg, #9a8674 0%, #7d6c5c 100%);
+}
 
 
 /* ---------------

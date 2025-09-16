@@ -21,7 +21,7 @@
         }
       },
       {
-        "source": "/api/convai/proxy/**",
+        "source": "/api/convai/**",
         "run": {
           "serviceId": "screening-service",
           "region": "europe-west4"
@@ -35,7 +35,21 @@
         }
       },
       {
-        "source": "/api/scrolls/**",
+        "source": "/scrolls",
+        "run": {
+          "serviceId": "holocron-api",
+          "region": "europe-west4"
+        }
+      },
+      {
+        "source": "/api/scrolls",
+        "run": {
+          "serviceId": "holocron-api",
+          "region": "europe-west4"
+        }
+      },
+      {
+        "source": "/get-random-scrolls",
         "run": {
           "serviceId": "holocron-api",
           "region": "europe-west4"
