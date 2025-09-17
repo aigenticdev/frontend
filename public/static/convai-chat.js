@@ -163,7 +163,7 @@
         button.addEventListener('click', () => {
             startDiv.remove();               // remove button
             inputArea.style.display = '';    // show input area
-            sendToConvai('Hi, can we start the conversation from the beggining? Can you introduce yourself?');              // send init message to backend
+            sendToConvai('Hi, lets start the conversation from the beginning. Can you introduce yourself?');              // send init message to backend
         });
 
         startDiv.appendChild(button);
