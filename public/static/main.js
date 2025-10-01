@@ -37,27 +37,78 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function renderStep(step) {
         currentStepId = step.step_id;
-
-        // First, render the message and options for the current step
         const messageDiv = appendMessage(step.message || "", "bot");
+
+        // Render special action buttons (e.g., for scheduling links)
+        if (step.action && step.action.type === 'DISPLAY_LINK_BUTTON') {
+            const actionButton = document.createElement("button");
+            actionButton.className = "option-btn action-btn"; // Add a distinct class for styling
+            actionButton.textContent = step.action.button_text;
+            actionButton.onclick = () => {
+                window.open(step.action.url, '_blank');
+            };
+            messageDiv.appendChild(actionButton);
+        }
 
         if (step.options) {
             const optionsContainer = document.createElement("div");
             optionsContainer.className = "message-options";
 
-            for (const [key, value] of Object.entries(step.options)) {
-                const button = document.createElement("button");
-                button.className = "option-btn";
-                button.textContent = value;
-                button.onclick = () => {
-                    handleScreeningResponse(key);
-                    optionsContainer.querySelectorAll('.option-btn').forEach(btn => {
-                        btn.disabled = true;
-                        if (btn === button) btn.classList.add('selected');
+            // Check if this is a multiple-choice question
+            if (step.multiple_choice) {
+                // Render checkboxes
+                for (const [key, value] of Object.entries(step.options)) {
+                    const checkboxWrapper = document.createElement("div");
+                    checkboxWrapper.className = "checkbox-wrapper";
+                    const checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.id = key;
+                    checkbox.value = key;
+                    checkbox.className = "option-checkbox";
+
+                    const label = document.createElement("label");
+                    label.htmlFor = key;
+                    label.textContent = value;
+
+                    checkboxWrapper.appendChild(checkbox);
+                    checkboxWrapper.appendChild(label);
+                    optionsContainer.appendChild(checkboxWrapper);
+                }
+
+                // Add a single continue button
+                const continueBtn = document.createElement("button");
+                continueBtn.className = "option-btn";
+                continueBtn.textContent = "Continue";
+                continueBtn.onclick = () => {
+                    const selectedKeys = [];
+                    optionsContainer.querySelectorAll('.option-checkbox:checked').forEach(checkbox => {
+                        selectedKeys.push(checkbox.value);
                     });
+                    // Ensure at least one option is selected if needed, or handle empty selection
+                    if (selectedKeys.length > 0) {
+                        handleScreeningResponse(selectedKeys);
+                        continueBtn.disabled = true;
+                    }
                 };
-                optionsContainer.appendChild(button);
+                optionsContainer.appendChild(continueBtn);
+
+            } else {
+                // Render standard single-choice buttons
+                for (const [key, value] of Object.entries(step.options)) {
+                    const button = document.createElement("button");
+                    button.className = "option-btn";
+                    button.textContent = value;
+                    button.onclick = () => {
+                        handleScreeningResponse(key);
+                        optionsContainer.querySelectorAll('.option-btn').forEach(btn => {
+                            btn.disabled = true;
+                            if (btn === button) btn.classList.add('selected');
+                        });
+                    };
+                    optionsContainer.appendChild(button);
+                }
             }
+
             messageDiv.appendChild(optionsContainer);
             questionInput.style.display = 'none';
             submitBtn.style.display = 'none';
@@ -108,6 +159,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 }),
             });
             const data = await res.json();
+
+            if (data.session_id) {
+                currentSessionId = data.session_id;
+                localStorage.setItem('aigentic_session_id', currentSessionId);
+            }
 
             // NEW: Check for a redirect action from the backend
             if (data.action && data.action.type === 'REDIRECT') {
