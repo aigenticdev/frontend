@@ -973,7 +973,7 @@ Shared Layout for All Pages
 ---------------------------- */
 body.avatar-page,
 body.office-chatbot,
-body.firesite-chatbot {
+body.fireside-chatbot {
   background-size: cover;
   background-position: center 80px;
   background-attachment: fixed;
@@ -991,8 +991,8 @@ body.office-chatbot {
   background-image: url('/static/images/office_chatbot.png');
 }
 
-body.firesite-chatbot {
-  background-image: url('/static/images/firesite_chatbot.png');
+body.fireside-chatbot {
+  background-image: url('/static/images/fireside_chatbot.png');
 }
 
 /* Shared console layout */
@@ -1010,7 +1010,7 @@ body.firesite-chatbot {
 @media (min-width: 769px) {
   body.avatar-page .console-container,
   body.office-chatbot .console-container,
-  body.firesite-chatbot .console-container {
+  body.fireside-chatbot .console-container {
     margin-left: auto;      /* push container to the right */
     margin-right: -5%;       /* smaller gap to move further right */
     justify-content: flex-end;
@@ -1022,7 +1022,7 @@ body.firesite-chatbot {
 /* Chat container styling */
 body.avatar-page .chat-container,
 body.office-chatbot .chat-container,
-body.firesite-chatbot .chat-container {
+body.fireside-chatbot .chat-container {
   background: linear-gradient(135deg, rgba(250, 245, 235, 0.95) 0%, rgba(245, 238, 226, 0.92) 100%);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -1098,6 +1098,20 @@ body.firesite-chatbot .chat-container {
   align-self: flex-end;
   border-bottom-right-radius: 4px;
   box-shadow: 0 2px 8px rgba(107, 93, 84, 0.3);
+}
+
+.message.system-warning {
+  background: linear-gradient(135deg, rgba(212, 165, 116, 0.15) 0%, rgba(198, 123, 78, 0.1) 100%);
+  border: 1px solid rgba(212, 165, 116, 0.4);
+  color: #8b7765;
+  align-self: center;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  max-width: 70%;
+  margin: 10px auto;
+  padding: 12px 16px;
+  border-radius: 18px;
 }
 
 .message.bot {
@@ -1321,7 +1335,7 @@ Mobile adjustments
 @media (max-width: 768px) {
   body.avatar-page,
   body.office-chatbot,
-  body.firesite-chatbot {
+  body.fireside-chatbot {
     background-image: none;
     background-color: #f3e6ff;
     display: flex;
@@ -1342,7 +1356,7 @@ Mobile adjustments
 
   body.avatar-page .chat-container,
   body.office-chatbot .chat-container,
-  body.firesite-chatbot .chat-container {
+  body.fireside-chatbot .chat-container {
     max-width: 100%;
     width: 100%;
     height: 90vh;
@@ -1385,6 +1399,7 @@ Mobile adjustments
   flex-grow: 1;
   overflow-y: auto;
   padding: 15px;
+  padding-top: 60px; /* NEW: Add extra top padding to prevent text overlap */
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.5);
   border: 1px solid rgba(139, 119, 101, 0.2);
@@ -1540,7 +1555,242 @@ Mobile adjustments
   border: 1px solid rgba(139, 119, 101, 0.2);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
+.start-chat-btn {
+    background: linear-gradient(135deg, #8b7765 0%, #6d5d4d 100%);
+    color: white;
+    border: none;
+    border-radius: 24px;
+    padding: 0 56px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    height: 48px;
+    box-shadow: 0 2px 8px rgba(107, 93, 84, 0.3);
+}
+.start-chat-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(107, 93, 84, 0.4);
+  background: linear-gradient(135deg, #9a8674 0%, #7d6c5c 100%);
+}
 
+/* Add these styles to your existing style.css file */
+
+/* Return to main chatbot button styling */
+/* ===================================
+   Demo Chatbot Features - Add to style.css
+   =================================== */
+
+/* Return to main chatbot button */
+.return-to-main-btn {
+  position: fixed;
+  top: 100px;
+  left: 20px;  /* Button positioned on the left */
+  background: linear-gradient(135deg, #8b7765 0%, #6d5d4d 100%);
+  color: white;
+  border: none;
+  border-radius: 24px;
+  padding: 12px 24px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(107, 93, 84, 0.4);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.return-to-main-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(107, 93, 84, 0.5);
+  background: linear-gradient(135deg, #9a8674 0%, #7d6c5c 100%);
+}
+
+.return-to-main-btn:active {
+  transform: translateY(0);
+}
+
+.return-to-main-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.question-counter {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(139, 119, 101, 0.1);
+  color: #5a4a3a;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 1px solid rgba(139, 119, 101, 0.3);
+  transition: all 0.3s ease;
+  z-index: 10; /* NEW: Ensure it stays above chat content */
+}
+
+.question-counter.warning {
+  background: rgba(255, 193, 7, 0.3); /* Updated for better visibility */
+  color: #856404;
+  border-color: rgba(255, 193, 7, 0.6); /* Updated */
+  font-weight: 700; /* NEW */
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.question-counter.critical {
+  background: rgba(220, 53, 69, 0.3); /* Updated for better visibility */
+  color: #721c24;
+  border-color: rgba(220, 53, 69, 0.6); /* Updated */
+  font-weight: 700; /* NEW */
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* Warning toast notification */
+.demo-warning-toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  background: rgba(255, 193, 7, 0.95);
+  color: #856404;
+  padding: 12px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 10000;
+  font-weight: 600;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.demo-warning-toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* Redirect notice modal */
+.redirect-notice {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(135deg, rgba(250, 245, 235, 0.98) 0%, rgba(245, 238, 226, 0.98) 100%);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+  text-align: center;
+  max-width: 450px;
+  width: 90%;
+  z-index: 10000;
+  display: none;
+  border: 2px solid rgba(139, 119, 101, 0.3);
+  animation: modalAppear 0.3s ease-out;
+}
+
+.redirect-notice.show {
+  display: block;
+}
+
+@keyframes modalAppear {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.redirect-notice h3 {
+  color: #8b7765;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.redirect-notice p {
+  color: #5a4a3a;
+  margin-bottom: 25px;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.redirect-notice .countdown {
+  font-size: 3rem;
+  color: #8b7765;
+  font-weight: 900;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  animation: countdownPulse 1s ease-in-out infinite;
+}
+
+@keyframes countdownPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Position chat container for counter */
+body.office-chatbot .chat-container,
+body.fireside-chatbot .chat-container,
+body.fireside-chatbot .chat-container {
+  position: relative;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .return-to-main-btn {
+    bottom: 80px;
+    top: auto;
+    left: 20px;  /* Button stays on the left on mobile */
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+
+  #convai-chat-window {
+    padding-top: 50px; /* ADD THIS - less padding on mobile */
+  }
+  
+  .question-counter {
+    top: 10px;
+    right: 10px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+  
+  .redirect-notice {
+    padding: 30px 20px;
+    width: 95%;
+  }
+  
+  .redirect-notice h3 {
+    font-size: 1.3rem;
+  }
+  
+  .redirect-notice .countdown {
+    font-size: 2.5rem;
+  }
+  
+  body.office-chatbot,
+  body.fireside-chatbot,
+  body.fireside-chatbot {
+    padding-bottom: 120px;
+  }
+}
+
+/* Hide demo features on main chatbot */
+body.chatbot-main .question-counter,
+body.chatbot-main .return-to-main-btn {
+  display: none !important;
+}
 
 /* ---------------
 Contact Page

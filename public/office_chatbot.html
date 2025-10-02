@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AIGENTIC Firesite Assistant</title>
+  <title>AIGENTIC Office Assistant</title>
 
   <!-- AIGENTIC Console Styles -->
   <link rel="stylesheet" href="/static/style.css" />
@@ -13,7 +13,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet">
   <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
 </head>
-<body class="firesite-chatbot">
+<body class="office-chatbot">
 
   <!-- Menu toggle button -->
   <button
@@ -35,6 +35,15 @@
     <a href="contact.html">CONTACT</a>
   </nav>
 
+  <!-- Return to Main Chatbot Button -->
+  <button class="return-to-main-btn" id="return-main-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+      <line x1="19" y1="12" x2="5" y2="12"></line>
+      <polyline points="12 19 5 12 12 5"></polyline>
+    </svg>
+    Back to Main Chat
+  </button>
+
   <!-- Mobile host message -->
   <div class="avatar-host-message">
     Our Avatar host Claudia will return soon! She is getting a wardrobe upgrade!
@@ -47,9 +56,14 @@
 
     <!-- Convai Chat container with unique IDs -->
     <div class="convai-container chat-container"
-         data-character-id="750cd450-8910-11f0-b127-42010a7be01f"
-         data-service-name="firesite"
-         data-welcome-message="Welcome to AIGENTIC Firesite Assistant. How may I assist you today?">
+         data-character-id="40ffc69a-841f-11f0-8b14-42010a7be01f"
+         data-service-name="office"
+         data-welcome-message="Welcome to AIGENTIC Office Assistant. How can I help you today?">
+
+      <!-- Question counter -->
+      <div class="question-counter" id="question-counter">
+        Questions: <span id="question-count">0</span>/10
+      </div>
 
       <div id="convai-chat-window">
         <!-- Chat messages will be appended here -->
@@ -62,8 +76,17 @@
     </div>
   </div>
 
+  <!-- Redirect Notice Modal -->
+  <div class="redirect-notice" id="redirect-notice">
+    <h3>Demo Limit Reached</h3>
+    <p>You've reached the 10-question limit for this demo chatbot. Redirecting you back to the main chatbot...</p>
+    <div class="countdown" id="countdown">3</div>
+  </div>
+
   <!-- Scripts -->
   <script src="/static/script.js"></script>
+  <script src="/static/demo-chatbot.js"></script>
+  <script src="/static/session-initializer.js"></script>
   <script src="/static/convai-chat.js"></script>
   <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
   <script>

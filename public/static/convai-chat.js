@@ -10,6 +10,7 @@
     const config = {
         characterId: null,
         serviceName: null,
+        appSessionId: null, // The main application session ID
         welcomeMessage: 'Welcome! How can I help you today?',
         backendUrl: '',  // Update this to match your backend
         apiEndpoint: '/api/convai/proxy',
@@ -19,7 +20,7 @@
 
     // Application state
     const state = {
-        sessionId: '-1',
+        sessionId: null, // This will hold the appSessionId
         isProcessing: false,
         initialized: false
     };
@@ -50,24 +51,20 @@
             return;
         }
 
+        // Set the session ID from config
+        state.sessionId = config.appSessionId;
+
         // Cache DOM elements - using unique IDs
         if (!cacheElements()) {
             console.error('Required DOM elements not found');
             return;
         }
 
-        // Set up session storage key
-        sessionStorageKey = `convai_session_${config.serviceName}`;
-
-        // Load existing session if any
-        loadSession();
-
         // Set up event listeners
         setupEventListeners();
 
         // Display welcome message
-        displayWelcomeMessage();
-
+        showStartButton();
         state.initialized = true;
         log(`Convai Chat initialized for service: ${config.serviceName}`);
     }
@@ -87,10 +84,15 @@
         config.characterId = chatContainer.dataset.characterId || null;
         config.serviceName = chatContainer.dataset.serviceName || 'default';
         config.welcomeMessage = chatContainer.dataset.welcomeMessage || config.welcomeMessage;
+        config.appSessionId = chatContainer.dataset.appSessionId || null;
 
         // Validate required configuration
         if (!config.characterId || config.characterId.includes('YOUR_')) {
             console.error('Character ID not configured. Please set data-character-id in HTML.');
+            return false;
+        }
+        if (!config.appSessionId) {
+            console.error('Application Session ID not configured. Please set data-app-session-id in HTML.');
             return false;
         }
 
@@ -114,26 +116,7 @@
         return true;
     }
 
-    /**
-     * Load session from localStorage
-     */
-    function loadSession() {
-        const savedSessionId = localStorage.getItem(sessionStorageKey);
-        if (savedSessionId && savedSessionId !== '-1') {
-            state.sessionId = savedSessionId;
-            log('Loaded existing session:', state.sessionId);
-        }
-    }
 
-    /**
-     * Save session to localStorage
-     */
-    function saveSession() {
-        if (state.sessionId && state.sessionId !== '-1') {
-            localStorage.setItem(sessionStorageKey, state.sessionId);
-            log('Session saved:', state.sessionId);
-        }
-    }
 
     /**
      * Set up event listeners
@@ -160,11 +143,35 @@
     }
 
     /**
-     * Display welcome message
+     * Display welcome button
      */
-    function displayWelcomeMessage() {
-        appendMessage(config.welcomeMessage, 'bot');
+    function showStartButton() {
+        // hide input area
+        const inputArea = document.querySelector('.convai-input-area');
+        inputArea.style.display = 'none';
+
+        // create button
+        const startDiv = document.createElement('div');
+        startDiv.className = 'start-chat-container';
+        startDiv.style.textAlign = 'center';
+        startDiv.style.padding = '20px';
+
+        const button = document.createElement('button');
+        button.textContent = 'Start Chat';
+        button.className = 'start-chat-btn';
+
+        button.addEventListener('click', () => {
+            startDiv.remove();               // remove button
+            inputArea.style.display = '';    // show input area
+            sendToConvai('Hi, lets start the conversation from the beginning. Can you introduce yourself?');              // send init message to backend
+        });
+
+        startDiv.appendChild(button);
+        elements.chatWindow.appendChild(startDiv);
     }
+
+
+
 
     /**
      * Handle form submission
@@ -195,7 +202,7 @@
             const url = `${config.backendUrl}${config.apiEndpoint}`;
             log('Sending request to:', url);
 
-            const response = await fetch(url, {
+            const response = await fetch('/api/convai/proxy', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -221,12 +228,7 @@
             const data = await response.json();
             log('Received response:', data);
 
-            // Update session ID if this was a new session
-            if (state.sessionId === '-1' && data.sessionID) {
-                state.sessionId = data.sessionID;
-                saveSession();
-                log('New session started:', state.sessionId);
-            }
+            // No longer need to manage session ID on the frontend
 
             hideTypingIndicator();
 
@@ -419,10 +421,9 @@
                     }
                 },
                 clearSession: function() {
-                    state.sessionId = '-1';
-                    localStorage.removeItem(sessionStorageKey);
+                    // This only clears the chat window. Session is managed by the parent application.
                     elements.chatWindow.innerHTML = '';
-                    displayWelcomeMessage();
+                    showStartButton();
                 },
                 getSessionId: function() {
                     return state.sessionId;
