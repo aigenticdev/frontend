@@ -1,26 +1,26 @@
 /**
- * Convai Chat Service - Shared implementation for multiple chat instances
- * Uses unique IDs to avoid conflicts with other scripts
+ * Convai Chat Service - Gapless WAV Streaming via PCM Concatenation
+ * Collects all WAV chunks, strips headers, concatenates PCM data, plays once
  */
 
 (function() {
     'use strict';
 
-    // Configuration object - will be populated from HTML data attributes
+    // Configuration object
     const config = {
         characterId: null,
         serviceName: null,
-        appSessionId: null, // The main application session ID
+        appSessionId: null,
         welcomeMessage: 'Welcome! How can I help you today?',
-        backendUrl: '',  // Update this to match your backend
+        backendUrl: '',
         apiEndpoint: '/api/convai/proxy',
         enableVoice: true,
-        debugMode: true  // Set to true to see debug messages
+        debugMode: true
     };
 
     // Application state
     const state = {
-        sessionId: null, // This will hold the appSessionId
+        sessionId: null,
         isProcessing: false,
         initialized: false
     };
@@ -28,8 +28,11 @@
     // DOM elements cache
     const elements = {};
 
-    // Session storage key will be dynamic based on service name
-    let sessionStorageKey = null;
+    // Audio system - collect chunks, play when complete
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    let audioChunks = [];
+    let currentAudioSource = null;
+    let wavHeader = null;
 
     /**
      * Initialize the chat service
@@ -37,7 +40,6 @@
     function initialize() {
         if (state.initialized) return;
 
-        // Wait for DOM if needed
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initialize);
             return;
@@ -45,25 +47,19 @@
 
         log('Initializing Convai Chat Service...');
 
-        // Get configuration from HTML
         if (!loadConfiguration()) {
             console.error('Failed to load configuration from HTML');
             return;
         }
 
-        // Set the session ID from config
         state.sessionId = config.appSessionId;
 
-        // Cache DOM elements - using unique IDs
         if (!cacheElements()) {
             console.error('Required DOM elements not found');
             return;
         }
 
-        // Set up event listeners
         setupEventListeners();
-
-        // Display welcome message
         showStartButton();
         state.initialized = true;
         log(`Convai Chat initialized for service: ${config.serviceName}`);
@@ -73,20 +69,17 @@
      * Load configuration from HTML data attributes
      */
     function loadConfiguration() {
-        // Look for element with convai-container class
         const chatContainer = document.querySelector('.convai-container');
         if (!chatContainer) {
             console.error('Convai container not found (.convai-container)');
             return false;
         }
 
-        // Read data attributes
         config.characterId = chatContainer.dataset.characterId || null;
         config.serviceName = chatContainer.dataset.serviceName || 'default';
         config.welcomeMessage = chatContainer.dataset.welcomeMessage || config.welcomeMessage;
         config.appSessionId = chatContainer.dataset.appSessionId || null;
 
-        // Validate required configuration
         if (!config.characterId || config.characterId.includes('YOUR_')) {
             console.error('Character ID not configured. Please set data-character-id in HTML.');
             return false;
@@ -101,7 +94,7 @@
     }
 
     /**
-     * Cache DOM elements - using unique Convai IDs
+     * Cache DOM elements
      */
     function cacheElements() {
         elements.chatWindow = document.getElementById('convai-chat-window');
@@ -116,19 +109,15 @@
         return true;
     }
 
-
-
     /**
      * Set up event listeners
      */
     function setupEventListeners() {
-        // Submit button click
         elements.submitBtn.addEventListener('click', function(e) {
             e.preventDefault();
             handleSubmit();
         });
 
-        // Enter key to submit
         elements.questionInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -136,21 +125,18 @@
             }
         });
 
-        // Auto-resize textarea
         elements.questionInput.addEventListener('input', function() {
             autoResizeTextarea(this);
         });
     }
 
     /**
-     * Display welcome button
+     * Display welcome/start button
      */
     function showStartButton() {
-        // hide input area
         const inputArea = document.querySelector('.convai-input-area');
         inputArea.style.display = 'none';
 
-        // create button
         const startDiv = document.createElement('div');
         startDiv.className = 'start-chat-container';
         startDiv.style.textAlign = 'center';
@@ -161,17 +147,14 @@
         button.className = 'start-chat-btn';
 
         button.addEventListener('click', () => {
-            startDiv.remove();               // remove button
-            inputArea.style.display = '';    // show input area
-            sendToConvai('Hi, lets start the conversation from the beginning. Can you introduce yourself?');              // send init message to backend
+            startDiv.remove();
+            inputArea.style.display = '';
+            sendToConvai("Hi, let's start the conversation from the beginning. Can you introduce yourself?");
         });
 
         startDiv.appendChild(button);
         elements.chatWindow.appendChild(startDiv);
     }
-
-
-
 
     /**
      * Handle form submission
@@ -180,15 +163,183 @@
         const message = elements.questionInput.value.trim();
         if (!message || state.isProcessing) return;
 
-        // Clear input
         elements.questionInput.value = '';
         autoResizeTextarea(elements.questionInput);
-
-        // Add user message
         appendMessage(message, 'user');
 
-        // Send to Convai
         await sendToConvai(message);
+    }
+
+    /**
+     * Parse WAV header to extract audio format information
+     */
+    function parseWavHeader(bytes) {
+        // WAV file structure (simplified):
+        // Bytes 0-3: "RIFF"
+        // Bytes 4-7: File size
+        // Bytes 8-11: "WAVE"
+        // Bytes 12-15: "fmt "
+        // Bytes 16-19: Format chunk size
+        // Bytes 20-21: Audio format (1 = PCM)
+        // Bytes 22-23: Number of channels
+        // Bytes 24-27: Sample rate
+        // Bytes 28-31: Byte rate
+        // Bytes 32-33: Block align
+        // Bytes 34-35: Bits per sample
+        // Bytes 36-39: "data"
+        // Bytes 40-43: Data size
+
+        const view = new DataView(bytes.buffer);
+
+        return {
+            numChannels: view.getUint16(22, true),
+            sampleRate: view.getUint32(24, true),
+            bitsPerSample: view.getUint16(34, true),
+            dataOffset: 44 // Standard WAV header size
+        };
+    }
+
+    /**
+     * Collect audio chunk (stores for later processing)
+     */
+    function handleAudioChunk(base64Chunk) {
+        try {
+            // Convert base64 to Uint8Array
+            const binary = atob(base64Chunk);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) {
+                bytes[i] = binary.charCodeAt(i);
+            }
+
+            // Store chunk
+            audioChunks.push(bytes);
+
+            // Parse header from first chunk
+            if (!wavHeader && bytes.length > 44) {
+                wavHeader = parseWavHeader(bytes);
+                log('WAV Header parsed:', wavHeader);
+            }
+
+        } catch (err) {
+            console.error("Error processing audio chunk:", err);
+        }
+    }
+
+    /**
+     * Process all collected chunks into one gapless audio buffer
+     */
+    async function processAndPlayAudio() {
+        if (audioChunks.length === 0) {
+            log('No audio chunks to process');
+            return;
+        }
+
+        if (!wavHeader) {
+            console.error('No WAV header found');
+            return;
+        }
+
+        try {
+            log(`Processing ${audioChunks.length} audio chunks...`);
+
+            // Calculate total PCM data size (excluding headers)
+            let totalPcmSize = 0;
+            for (const chunk of audioChunks) {
+                totalPcmSize += (chunk.length - wavHeader.dataOffset);
+            }
+
+            // Create buffer for concatenated PCM data
+            const pcmData = new Uint8Array(totalPcmSize);
+            let offset = 0;
+
+            // Extract and concatenate PCM data from each chunk
+            for (const chunk of audioChunks) {
+                const pcmChunk = chunk.slice(wavHeader.dataOffset);
+                pcmData.set(pcmChunk, offset);
+                offset += pcmChunk.length;
+            }
+
+            log(`Concatenated ${totalPcmSize} bytes of PCM data`);
+
+            // Convert PCM bytes to Float32Array for Web Audio API
+            const bytesPerSample = wavHeader.bitsPerSample / 8;
+            const numSamples = pcmData.length / bytesPerSample / wavHeader.numChannels;
+
+            // Create AudioBuffer
+            const audioBuffer = audioContext.createBuffer(
+                wavHeader.numChannels,
+                numSamples,
+                wavHeader.sampleRate
+            );
+
+            // Fill the audio buffer with PCM data
+            for (let channel = 0; channel < wavHeader.numChannels; channel++) {
+                const channelData = audioBuffer.getChannelData(channel);
+
+                for (let i = 0; i < numSamples; i++) {
+                    const offset = (i * wavHeader.numChannels + channel) * bytesPerSample;
+
+                    // Convert PCM to float (-1.0 to 1.0)
+                    let sample = 0;
+                    if (wavHeader.bitsPerSample === 16) {
+                        // 16-bit PCM
+                        sample = new DataView(pcmData.buffer).getInt16(offset, true) / 32768.0;
+                    } else if (wavHeader.bitsPerSample === 8) {
+                        // 8-bit PCM (unsigned)
+                        sample = (pcmData[offset] - 128) / 128.0;
+                    }
+
+                    channelData[i] = sample;
+                }
+            }
+
+            log(`Created AudioBuffer: ${audioBuffer.duration.toFixed(2)}s duration`);
+
+            // Play the complete buffer
+            playAudioBuffer(audioBuffer);
+
+        } catch (err) {
+            console.error("Error processing audio:", err);
+        }
+    }
+
+    /**
+     * Play the complete audio buffer (gapless playback)
+     */
+    function playAudioBuffer(audioBuffer) {
+        // Stop any existing playback
+        stopAudio();
+
+        // Create source and play
+        currentAudioSource = audioContext.createBufferSource();
+        currentAudioSource.buffer = audioBuffer;
+        currentAudioSource.connect(audioContext.destination);
+
+        currentAudioSource.onended = () => {
+            log('Audio playback completed');
+            currentAudioSource = null;
+        };
+
+        currentAudioSource.start(0);
+        log('Started gapless audio playback');
+    }
+
+    /**
+     * Stop audio playback and clear chunks
+     */
+    function stopAudio() {
+        if (currentAudioSource) {
+            try {
+                currentAudioSource.stop();
+            } catch (e) {
+                // Already stopped
+            }
+            currentAudioSource = null;
+        }
+
+        audioChunks = [];
+        wavHeader = null;
+        log('Audio stopped and chunks cleared');
     }
 
     /**
@@ -196,63 +347,76 @@
      */
     async function sendToConvai(message) {
         setUiState(true);
-        showTypingIndicator();
+
+        // Clear previous audio
+        stopAudio();
+
+        const botMessageDiv = appendMessage("", "bot");
+        const botParagraph = botMessageDiv.querySelector("p");
+        botParagraph.innerHTML = '<span class="typing-cursor"></span>';
+
+        let fullText = "";
 
         try {
-            const url = `${config.backendUrl}${config.apiEndpoint}`;
-            log('Sending request to:', url);
-
-            const response = await fetch('/api/convai/proxy', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    char_id: config.characterId,
-                    user_text: message,
-                    session_id: state.sessionId
-                })
+            const queryParams = new URLSearchParams({
+                char_id: config.characterId,
+                user_text: message,
+                session_id: state.sessionId
             });
+            const url = `/api/convai/proxy/stream?${queryParams.toString()}`;
+            const eventSource = new EventSource(url);
 
-            if (!response.ok) {
-                let errorMsg = `Server error: ${response.status}`;
+            eventSource.onmessage = function(event) {
+                if (!event.data) return;
+
                 try {
-                    const errorData = await response.json();
-                    errorMsg = errorData.detail || errorMsg;
+                    const data = JSON.parse(event.data);
+
+                    if (data.text) {
+                        fullText += data.text;
+                        botParagraph.textContent = fullText;
+                        scrollToBottom();
+                    }
+                    if (data.audio) {
+                        handleAudioChunk(data.audio);
+                    }
+                    if (data.end) {
+                        log("Received 'end' signal from stream.");
+                        eventSource.close();
+                        finalizeResponse();
+                    }
                 } catch (e) {
-                    // Ignore JSON parse error
+                    log("Failed to parse stream data chunk:", e, "Chunk:", event.data);
                 }
-                throw new Error(errorMsg);
-            }
+            };
 
-            const data = await response.json();
-            log('Received response:', data);
+            const finalizeResponse = () => {
+                setUiState(false);
+                if (!fullText) {
+                    botParagraph.textContent = "An error occurred. Please try again.";
+                }
+                // Process and play all collected audio chunks
+                processAndPlayAudio();
+            };
 
-            // No longer need to manage session ID on the frontend
-
-            hideTypingIndicator();
-
-            // Display response with audio if available
-            if (data.text) {
-                appendMessage(data.text, 'bot', data.audio, data.sample_rate);
-            } else {
-                showError('Received empty response from assistant');
-            }
+            eventSource.onerror = function(err) {
+                log("EventSource error:", err);
+                eventSource.close();
+                finalizeResponse();
+            };
 
         } catch (error) {
-            hideTypingIndicator();
             showError(`Error: ${error.message}`);
             console.error('Convai API error:', error);
-        } finally {
             setUiState(false);
-            elements.questionInput.focus();
+            botMessageDiv.remove();
         }
     }
 
     /**
      * Append message to chat window
      */
-    function appendMessage(text, sender = 'bot', audioData = null, sampleRate = null) {
+    function appendMessage(text, sender = 'bot') {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${sender}`;
 
@@ -263,79 +427,7 @@
         elements.chatWindow.appendChild(messageDiv);
         scrollToBottom();
 
-        // Handle audio if provided (bot messages only)
-        if (sender === 'bot' && audioData && config.enableVoice) {
-            playBackgroundAudio(audioData, sampleRate);
-        }
-
         return messageDiv;
-    }
-
-    /**
-     * Play audio in background (no UI controls)
-     */
-    function playBackgroundAudio(audioData, sampleRate) {
-        try {
-            // Decode base64 WAV data
-            const binaryString = atob(audioData);
-            const bytes = new Uint8Array(binaryString.length);
-            for (let i = 0; i < binaryString.length; i++) {
-                bytes[i] = binaryString.charCodeAt(i);
-            }
-
-            // Create blob and audio element
-            const blob = new Blob([bytes], { type: 'audio/wav' });
-            const audioUrl = URL.createObjectURL(blob);
-            const audio = new Audio(audioUrl);
-
-            // Configure audio
-            audio.volume = 0.8;
-            audio.preload = 'auto';
-
-            // Play audio automatically
-            audio.play().catch(error => {
-                // Silently fail if auto-play is blocked
-                log('Auto-play blocked or failed:', error.message);
-            });
-
-            // Clean up blob URL after audio ends
-            audio.addEventListener('ended', () => {
-                URL.revokeObjectURL(audioUrl);
-            });
-
-            // Also clean up on error
-            audio.addEventListener('error', () => {
-                URL.revokeObjectURL(audioUrl);
-            });
-
-            log(`Playing audio (${sampleRate}Hz)`);
-
-        } catch (error) {
-            // Silently fail - user still sees text response
-            log('Audio playback error:', error);
-        }
-    }
-
-    /**
-     * Show typing indicator
-     */
-    function showTypingIndicator() {
-        const indicator = document.createElement('div');
-        indicator.className = 'message bot typing-indicator';
-        indicator.id = 'convai-typing-indicator';
-        indicator.innerHTML = '<p>Assistant is typing...</p>';
-        elements.chatWindow.appendChild(indicator);
-        scrollToBottom();
-    }
-
-    /**
-     * Hide typing indicator
-     */
-    function hideTypingIndicator() {
-        const indicator = document.getElementById('convai-typing-indicator');
-        if (indicator) {
-            indicator.remove();
-        }
     }
 
     /**
@@ -347,21 +439,13 @@
         const p = document.createElement('p');
         p.textContent = message;
         errorDiv.appendChild(p);
-
         elements.chatWindow.appendChild(errorDiv);
         scrollToBottom();
 
-        // Auto-remove after 5 seconds
-        setTimeout(() => {
-            if (errorDiv.parentNode) {
-                errorDiv.remove();
-            }
-        }, 5000);
+        setTimeout(() => errorDiv.remove(), 5000);
     }
 
-    /**
-     * Set UI loading state
-     */
+    /** UI helpers */
     function setUiState(isLoading) {
         state.isProcessing = isLoading;
         elements.questionInput.disabled = isLoading;
@@ -371,71 +455,50 @@
             : 'Type your message...';
     }
 
-    /**
-     * Auto-resize textarea
-     */
     function autoResizeTextarea(textarea) {
         textarea.style.height = 'auto';
-        const newHeight = Math.min(textarea.scrollHeight, 120);
-        textarea.style.height = newHeight + 'px';
+        textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
     }
 
-    /**
-     * Scroll chat window to bottom
-     */
     function scrollToBottom() {
         if (elements.chatWindow) {
             elements.chatWindow.scrollTop = elements.chatWindow.scrollHeight;
         }
     }
 
-    /**
-     * Escape HTML to prevent injection
-     */
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
 
-    /**
-     * Debug logging
-     */
     function log(...args) {
-        if (config.debugMode) {
-            console.log(`[Convai-${config.serviceName}]`, ...args);
-        }
+        if (config.debugMode) console.log(`[Convai-${config.serviceName}]`, ...args);
     }
 
-    // Public API (optional - for external control)
-    window.ConvaiChat = window.ConvaiChat || {};
-
-    // Wait for initialization before setting up public API
+    // Public API
     setTimeout(() => {
         if (config.serviceName) {
+            window.ConvaiChat = window.ConvaiChat || {};
             window.ConvaiChat[config.serviceName] = {
-                sendMessage: function(message) {
-                    if (elements.questionInput && message) {
-                        elements.questionInput.value = message;
+                sendMessage: msg => {
+                    if (elements.questionInput && msg) {
+                        elements.questionInput.value = msg;
                         handleSubmit();
                     }
                 },
-                clearSession: function() {
-                    // This only clears the chat window. Session is managed by the parent application.
+                clearSession: () => {
+                    stopAudio();
                     elements.chatWindow.innerHTML = '';
                     showStartButton();
                 },
-                getSessionId: function() {
-                    return state.sessionId;
-                },
-                setDebugMode: function(enabled) {
-                    config.debugMode = enabled;
-                }
+                getSessionId: () => state.sessionId,
+                setDebugMode: enabled => (config.debugMode = enabled),
+                stopAudio: stopAudio
             };
         }
     }, 100);
 
-    // Initialize when ready
     initialize();
 
 })();
