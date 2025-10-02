@@ -1,6 +1,7 @@
 // ============================================
 // DEMO CHATBOT ENHANCEMENTS
 // Complete demo-chatbot.js file with all fixes
+// Add this to your main.js or create a separate demo-chatbot.js file
 // ============================================
 
 // Check if we're on a demo chatbot page
@@ -302,4 +303,25 @@ if (isDemoChatbot) {
 window.addEventListener('pageshow', (event) => {
     // Remove transition class if user navigates back
     document.body.classList.remove('transitioning-out');
+});
+
+// --- Add Welcome Message for Demo Chatbots ---
+document.addEventListener('DOMContentLoaded', () => {
+    if (isDemoChatbot) {
+        const chatWindow = document.getElementById('chat-window');
+        if (chatWindow && questionCount === 0) {
+            const welcomeMessage = document.createElement('div');
+            welcomeMessage.className = 'message bot';
+            const p = document.createElement('p');
+
+            if (document.body.classList.contains('office-chatbot')) {
+                p.innerHTML = "Welcome to the Office Assistant Demo! 🏢<br><br>I'm here to help you with workplace queries. You have 10 questions to explore my capabilities. What would you like to know?";
+            } else if (document.body.classList.contains('fireside-chatbot')) {
+                p.innerHTML = "Welcome to the Fireside Chat Demo! 🔥<br><br>Let's have a cozy conversation. You have 10 questions to explore this demo. What's on your mind?";
+            }
+
+            welcomeMessage.appendChild(p);
+            chatWindow.appendChild(welcomeMessage);
+        }
+    }
 });

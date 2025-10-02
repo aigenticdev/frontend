@@ -52,12 +52,12 @@
       }
 
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/webgl_nocomp.loader.js";
+      var loaderUrl = buildUrl + "/webgl_build.loader.js";
       var config = {
         arguments: [],
-        dataUrl: buildUrl + "/webgl_nocomp.data",
-        frameworkUrl: buildUrl + "/webgl_nocomp.framework.js",
-        codeUrl: buildUrl + "/webgl_nocomp.wasm",
+        dataUrl: buildUrl + "/webgl_build.data",
+        frameworkUrl: buildUrl + "/webgl_build.framework.js",
+        codeUrl: buildUrl + "/webgl_build.wasm",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "Squit",
@@ -122,6 +122,11 @@
 
       document.body.appendChild(script);
 
+    </script>
+    <script>
+      function redirectToChatbot() {
+        window.location.href = "/chatbot.html";
+      }
     </script>
   </body>
 </html>
