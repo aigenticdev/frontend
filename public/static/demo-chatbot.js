@@ -1,10 +1,3 @@
-// ============================================
-// DEMO CHATBOT ENHANCEMENTS
-// Complete demo-chatbot.js file with all fixes
-// Add this to your main.js or create a separate demo-chatbot.js file
-// ============================================
-
-// Check if we're on a demo chatbot page
 const isDemoChatbot = document.body.classList.contains('office-chatbot') ||
                       document.body.classList.contains('fireside-chatbot');
 
@@ -14,12 +7,11 @@ function getSessionIdFromUrl() {
     return urlParams.get('session_id');
 }
 
-// Set session ID IMMEDIATELY for demo chatbots (before convai-chat.js loads)
+// Demo chatbot initialization
 if (isDemoChatbot) {
     // Get session ID from URL or generate a new one
     let sessionId = getSessionIdFromUrl();
     if (!sessionId) {
-        // Generate a new session ID if not provided
         sessionId = 'demo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     }
 
@@ -40,26 +32,22 @@ if (isDemoChatbot) {
     const chatbotType = document.body.classList.contains('office-chatbot') ? 'office' : 'fireside';
     const storageKey = chatbotType + '_question_count';
 
-    // Initialize counter from localStorage (to persist across refreshes)
+    // Initialize counter from localStorage
     questionCount = parseInt(localStorage.getItem(storageKey) || '0');
 
-    // Wait for DOM to be ready before initializing
+    // Initialize demo chatbot functionality
     function initializeDemoChatbot() {
-        // Get counter elements
         const counterElement = document.getElementById('question-counter');
         const countDisplay = document.getElementById('question-count');
         const redirectNotice = document.getElementById('redirect-notice');
         const countdownElement = document.getElementById('countdown');
 
-        // Check which chat system is being used
-        const isConvaiSystem = document.getElementById('convai-submit') !== null;
-
-        // --- Update Counter Display ---
+        // Update Counter Display
         function updateQuestionCounter() {
+            console.log('Updating counter display:', questionCount);
             if (countDisplay) {
                 countDisplay.textContent = questionCount;
 
-                // Update counter styling based on count
                 if (counterElement) {
                     counterElement.classList.remove('warning', 'critical');
 
@@ -75,82 +63,117 @@ if (isDemoChatbot) {
             if (questionCount === WARNING_THRESHOLD) {
                 appendWarningMessage(`You have ${MAX_QUESTIONS - questionCount} questions remaining in this demo.`);
             } else if (questionCount === CRITICAL_THRESHOLD) {
-                appendWarningMessage(`⚠️ You have only 1 question remaining in this demo!`);
+                appendWarningMessage(`You have only 1 question remaining in this demo!`);
             }
         }
 
         // Initial counter update
         updateQuestionCounter();
 
-        // --- Return Button Handler ---
+        // Return Button Handler
         const returnButton = document.getElementById('return-main-btn');
         if (returnButton) {
             returnButton.addEventListener('click', (e) => {
                 e.preventDefault();
-                // Add transition effect
                 document.body.classList.add('transitioning-out');
-                // Reset question count for this demo
                 localStorage.removeItem(storageKey);
-                // Navigate after animation
                 setTimeout(() => {
                     window.location.href = '/chatbot.html';
                 }, 300);
             });
         }
 
-        // --- Setup Submit Handler for Question Counting ---
-        function setupSubmitHandler() {
-            const submitBtn = isConvaiSystem ?
-                              document.getElementById('convai-submit') :
-                              document.getElementById('submit-btn');
-            const questionInput = isConvaiSystem ?
-                                  document.getElementById('convai-input') :
-                                  document.getElementById('question');
+        // Monitor for new messages being added to chat
+        function monitorChatMessages() {
+            const chatWindow = document.getElementById('convai-chat-window');
+            if (!chatWindow) {
+                console.error('Chat window not found');
+                return;
+            }
 
-            if (submitBtn && questionInput) {
-                // Clone button to remove any existing handlers
-                const newSubmitBtn = submitBtn.cloneNode(true);
-                submitBtn.parentNode.replaceChild(newSubmitBtn, submitBtn);
-
-                // Add click handler
-                newSubmitBtn.addEventListener('click', function(e) {
-                    const question = questionInput.value.trim();
-                    if (!question) return;
-
-                    // Check if we've reached the limit BEFORE processing
-                    if (questionCount >= MAX_QUESTIONS) {
-                        e.preventDefault();
-                        e.stopImmediatePropagation();
-                        handleLimitReached();
-                        return;
-                    }
-
-                    // Increment question count immediately
-                    questionCount++;
-                    localStorage.setItem(storageKey, questionCount.toString());
-                    updateQuestionCounter();
-                    console.log('Question submitted. New count:', questionCount);
-                }, true);
-
-                // Also handle Enter key
-                questionInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        newSubmitBtn.click();
-                    }
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    mutation.addedNodes.forEach((node) => {
+                        // Check if a user message was added
+                        if (node.nodeType === 1 && node.classList && node.classList.contains('message')) {
+                            if (node.classList.contains('user')) {
+                                console.log('User message detected');
+                                
+                                // Check if we've hit the limit
+                                if (questionCount >= MAX_QUESTIONS) {
+                                    handleLimitReached();
+                                    return;
+                                }
+                                
+                                // Increment counter
+                                questionCount++;
+                                localStorage.setItem(storageKey, questionCount.toString());
+                                updateQuestionCounter();
+                                console.log('Question count incremented to:', questionCount);
+                                
+                                if (questionCount >= MAX_QUESTIONS) {
+                                    setTimeout(() => {
+                                        handleLimitReached();
+                                    }, 3000);
+                                }
+                            }
+                        }
+                    });
                 });
+            });
+
+            // Start observing the chat window
+            observer.observe(chatWindow, { 
+                childList: true, 
+                subtree: true 
+            });
+            
+            console.log('Chat message observer started');
+        }
+
+        // Monitor the submit button click
+        function monitorSubmitButton() {
+            const submitBtn = document.getElementById('convai-submit');
+            const inputField = document.getElementById('convai-input');
+            
+            if (submitBtn && inputField) {
+                // Create a new click handler
+                submitBtn.addEventListener('click', function(e) {
+                    const message = inputField.value.trim();
+                    
+                    if (message) {
+                        // Check limit BEFORE submission
+                        if (questionCount >= MAX_QUESTIONS) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleLimitReached();
+                            return false;
+                        }
+                        
+                        
+                    }
+                }, true); 
+                
+                inputField.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        const message = this.value.trim();
+                        if (message && questionCount >= MAX_QUESTIONS) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleLimitReached();
+                        }
+                    }
+                }, true);
+                
+                console.log('Submit button monitor added');
             }
         }
 
-        // --- Handle Limit Reached ---
+        // Handle Limit Reached
         function handleLimitReached() {
-            // Disable input based on which system is being used
-            const submitBtn = isConvaiSystem ?
-                              document.getElementById('convai-submit') :
-                              document.getElementById('submit-btn');
-            const questionInput = isConvaiSystem ?
-                                  document.getElementById('convai-input') :
-                                  document.getElementById('question');
+            console.log('Limit reached, disabling chat');
+            const submitBtn = document.getElementById('convai-submit');
+            const questionInput = document.getElementById('convai-input');
 
             if (questionInput) {
                 questionInput.disabled = true;
@@ -164,7 +187,6 @@ if (isDemoChatbot) {
             if (redirectNotice) {
                 redirectNotice.classList.add('show');
 
-                // Start countdown
                 let countdown = 3;
                 if (countdownElement) {
                     countdownElement.textContent = countdown;
@@ -178,18 +200,15 @@ if (isDemoChatbot) {
 
                     if (countdown <= 0) {
                         clearInterval(countdownInterval);
-                        // Reset question count
                         localStorage.removeItem(storageKey);
-                        // Add transition
                         document.body.classList.add('transitioning-out');
-                        // Redirect to main chatbot
                         setTimeout(() => {
                             window.location.href = '/chatbot.html';
                         }, 300);
                     }
                 }, 1000);
             } else {
-                // Fallback if modal doesn't exist
+                // Fallback
                 setTimeout(() => {
                     localStorage.removeItem(storageKey);
                     window.location.href = '/chatbot.html';
@@ -197,131 +216,62 @@ if (isDemoChatbot) {
             }
         }
 
-        // --- Helper: Add Warning Message to Chat ---
+        // Warning Message to Chat
         function appendWarningMessage(text) {
-            // Handle both Convai and main.js chat windows
-            const chatWindow = isConvaiSystem ?
-                              document.getElementById('convai-chat-window') :
-                              document.getElementById('chat-window');
+            const chatWindow = document.getElementById('convai-chat-window');
 
             if (chatWindow) {
                 const warningDiv = document.createElement('div');
                 warningDiv.className = 'message system-warning';
-                warningDiv.style.cssText = `
-                    background: linear-gradient(135deg, rgba(212, 165, 116, 0.15) 0%, rgba(198, 123, 78, 0.1) 100%);
-                    border: 1px solid rgba(212, 165, 116, 0.4);
-                    color: #8b7765;
-                    align-self: center;
-                    text-align: center;
-                    font-weight: 600;
-                    font-size: 0.9rem;
-                    max-width: 70%;
-                    margin: 10px 0;
-                    padding: 12px 16px;
-                    border-radius: 18px;
-                `;
-
                 warningDiv.textContent = text;
                 chatWindow.appendChild(warningDiv);
                 chatWindow.scrollTop = chatWindow.scrollHeight;
             }
         }
 
-        // --- Add Welcome Message for Demo Chatbots ---
+        // Welcome Message
         if (questionCount === 0) {
-            const chatWindow = isConvaiSystem ?
-                              document.getElementById('convai-chat-window') :
-                              document.getElementById('chat-window');
+            setTimeout(() => {
+                const chatWindow = document.getElementById('convai-chat-window');
                               
-            if (chatWindow && chatWindow.children.length === 0) {
-                const welcomeMessage = document.createElement('div');
-                welcomeMessage.className = 'message bot';
-                const p = document.createElement('p');
+                if (chatWindow && chatWindow.children.length === 0) {
+                    const welcomeMessage = document.createElement('div');
+                    welcomeMessage.className = 'message bot';
+                    const p = document.createElement('p');
 
-                if (chatbotType === 'office') {
-                    p.innerHTML = "Welcome to the Office Assistant Demo! 🏢<br><br>I'm here to help you with workplace queries. You have 10 questions to explore my capabilities. What would you like to know?";
-                } else if (chatbotType === 'fireside') {
-                    p.innerHTML = "Welcome to the Fireside Chat Demo! 🔥<br><br>Let's have a cozy conversation. You have 10 questions to explore this demo. What's on your mind?";
+                    if (chatbotType === 'office') {
+                        p.innerHTML = "Welcome to the Office Assistant Demo! <br><br>I'm here to help you with workplace queries. You have 10 questions to explore my capabilities. What would you like to know?";
+                    } else if (chatbotType === 'fireside') {
+                        p.innerHTML = "Welcome to the Fireside Chat Demo! <br><br>Let's have a cozy conversation. You have 10 questions to explore this demo. What's on your mind?";
+                    }
+
+                    welcomeMessage.appendChild(p);
+                    chatWindow.appendChild(welcomeMessage);
                 }
-
-                welcomeMessage.appendChild(p);
-                chatWindow.appendChild(welcomeMessage);
-            }
+            }, 500);
         }
 
-        // Setup submit handler
-        setupSubmitHandler();
+        // Initialize monitoring
+        setTimeout(() => {
+            monitorChatMessages();
+            monitorSubmitButton();
+        }, 1000); 
     }
 
     // Initialize when DOM is ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initializeDemoChatbot);
     } else {
-        // DOM is already loaded, wait a bit for elements to render
         setTimeout(initializeDemoChatbot, 100);
     }
 
-    // --- Add "Try Demo" Links Handler for Main Chatbot ---
 } else if (document.body.classList.contains('avatar-page')) {
-    // We're on the main chatbot page
-
-    // Monitor chat for demo recommendations
-    const chatObserver = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            mutation.addedNodes.forEach((node) => {
-                if (node.nodeType === 1 && node.classList && node.classList.contains('message')) {
-                    // Check for links in bot messages
-                    const links = node.querySelectorAll('a[href*="office_chatbot"], a[href*="fireside_chatbot"]');
-                    links.forEach(link => {
-                        link.classList.add('demo-link');
-                        // Add smooth transition
-                        link.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            document.body.classList.add('transitioning-out');
-                            setTimeout(() => {
-                                window.location.href = link.href;
-                            }, 300);
-                        });
-                    });
-                }
-            });
-        });
-    });
-
-    // Start observing chat window
-    const chatWindow = document.getElementById('chat-window');
-    if (chatWindow) {
-        chatObserver.observe(chatWindow, { childList: true, subtree: true });
-    }
-
-    // Clear any stored question counts when on main chatbot
+    // Main chatbot page - clear stored counts
     localStorage.removeItem('office_question_count');
     localStorage.removeItem('fireside_question_count');
 }
 
-// --- Smooth Page Transitions ---
+// Smooth Page Transitions
 window.addEventListener('pageshow', (event) => {
-    // Remove transition class if user navigates back
     document.body.classList.remove('transitioning-out');
-});
-
-// --- Add Welcome Message for Demo Chatbots ---
-document.addEventListener('DOMContentLoaded', () => {
-    if (isDemoChatbot) {
-        const chatWindow = document.getElementById('chat-window');
-        if (chatWindow && questionCount === 0) {
-            const welcomeMessage = document.createElement('div');
-            welcomeMessage.className = 'message bot';
-            const p = document.createElement('p');
-
-            if (document.body.classList.contains('office-chatbot')) {
-                p.innerHTML = "Welcome to the Office Assistant Demo! 🏢<br><br>I'm here to help you with workplace queries. You have 10 questions to explore my capabilities. What would you like to know?";
-            } else if (document.body.classList.contains('fireside-chatbot')) {
-                p.innerHTML = "Welcome to the Fireside Chat Demo! 🔥<br><br>Let's have a cozy conversation. You have 10 questions to explore this demo. What's on your mind?";
-            }
-
-            welcomeMessage.appendChild(p);
-            chatWindow.appendChild(welcomeMessage);
-        }
-    }
 });

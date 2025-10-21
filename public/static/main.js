@@ -1,5 +1,3 @@
-// AIGENTIC Frontend Logic - main.js
-
 document.addEventListener("DOMContentLoaded", () => {
     // --- DOM Elements ---
     const chatWindow = document.getElementById("chat-window");
@@ -42,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Render special action buttons (e.g., for scheduling links)
         if (step.action && step.action.type === 'DISPLAY_LINK_BUTTON') {
             const actionButton = document.createElement("button");
-            actionButton.className = "option-btn action-btn"; // Add a distinct class for styling
+            actionButton.className = "option-btn action-btn"; 
             actionButton.textContent = step.action.button_text;
             actionButton.onclick = () => {
                 window.open(step.action.url, '_blank');
@@ -122,13 +120,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function handleOpenGameModal() {
         console.log("Opening game modal...");
-        gameIframe.src = "static/game/index.html"; // Hardcoded for simplicity as it's the only game
+        gameIframe.src = "static/game/index.html"; 
         gameModal.style.display = 'flex';
 
         function closeGame() {
             console.log("Game finished. Closing modal and continuing conversation.");
             gameModal.style.display = 'none';
-            gameIframe.src = ""; // Stop the game to free up resources
+            gameIframe.src = ""; 
             window.removeEventListener("message", messageHandler);
         }
 
@@ -144,7 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function handleScreeningResponse(responseKey) {
         if (typeof responseKey === 'string') {
-            appendMessage(responseKey, "user"); // Visually represent the choice
+            appendMessage(responseKey, "user"); 
         }
         setUiLoading(true);
 
@@ -165,10 +163,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 localStorage.setItem('aigentic_session_id', currentSessionId);
             }
 
-            // NEW: Check for a redirect action from the backend
             if (data.action && data.action.type === 'REDIRECT') {
                 window.location.href = data.action.url;
-                return; // Stop processing
+                return; 
             }
 
             if (data.transition_to === 'qna') {
@@ -265,7 +262,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     console.error("Raw response from server that caused error:", text);
                 });
             }
-            // window.location.href = "/contact.html"; // Uncomment this line for production
         }
     }
 

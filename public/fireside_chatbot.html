@@ -15,7 +15,6 @@
 </head>
 <body class="fireside-chatbot">
 
-  <!-- Menu toggle button -->
   <button
     id="menu-toggle"
     aria-expanded="false"
@@ -25,7 +24,6 @@
     ☰ MENU
   </button>
 
-  <!-- Main navigation -->
   <nav id="main-nav">
     <a href="chatbot.html">CHATBOT</a>
     <a href="index.html">HOME</a>
@@ -35,7 +33,6 @@
     <a href="contact.html">CONTACT</a>
   </nav>
 
-  <!-- Return to Main Chatbot Button -->
   <button class="return-to-main-btn" id="return-main-btn">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
       <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -44,29 +41,22 @@
     Back to Main Chat
   </button>
 
-  <!-- Mobile host message -->
   <div class="avatar-host-message">
     Our Avatar host Claudia will return soon! She is getting a wardrobe upgrade!
   </div>
 
-  <!-- AIGENTIC Console Layout -->
   <div class="console-container" data-aos="fade-up">
-    <!-- Avatar container (hidden) -->
     <div id="avatar-container"></div>
-
-    <!-- Convai Chat container with unique IDs -->
     <div class="convai-container chat-container"
          data-character-id="750cd450-8910-11f0-b127-42010a7be01f"
          data-service-name="firesite"
          data-welcome-message="Welcome to AIGENTIC Firesite Assistant. How may I assist you today?">
 
-      <!-- Question counter -->
       <div class="question-counter" id="question-counter">
         Questions: <span id="question-count">0</span>/10
       </div>
 
       <div id="convai-chat-window">
-        <!-- Chat messages will be appended here -->
       </div>
 
       <div class="convai-input-area input-area">
@@ -76,7 +66,6 @@
     </div>
   </div>
 
-  <!-- Redirect Notice Modal -->
   <div class="redirect-notice" id="redirect-notice">
     <h3>Demo Limit Reached</h3>
     <p>You've reached the 10-question limit for this demo chatbot. Redirecting you back to the main chatbot...</p>

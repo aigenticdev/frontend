@@ -22,7 +22,7 @@
         } catch (error) {
             console.error('Failed to initialize a new session:', error);
             if (chatContainer) chatContainer.style.display = 'none';
-            return; // Stop execution if session creation fails
+            return; 
         }
     }
 

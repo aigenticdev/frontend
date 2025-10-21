@@ -1,8 +1,3 @@
-/**
- * Convai Chat Service - Gapless WAV Streaming via PCM Concatenation
- * Collects all WAV chunks, strips headers, concatenates PCM data, plays once
- */
-
 (function() {
     'use strict';
 
